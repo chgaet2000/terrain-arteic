@@ -2,6 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
+<script src="config.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -415,10 +416,8 @@
 
 /* ============================================================
    Application 100% autonome, sans dépendance à Claude.
-   Chaque formulaire poste directement vers le Google Form d'origine
-   (endpoint public /formResponse) — les réponses apparaissent dans
-   l'onglet "Réponses" du formulaire concerné, exactement comme si
-   elles avaient été saisies depuis un navigateur.
+   Chaque saisie est envoyée à la base Supabase (table "submissions",
+   insertion seule pour le public) puis consultée dans dashboard.html.
    ============================================================ */
 
 const ICONS = {
@@ -598,12 +597,12 @@ const STEPS_PREJOB = [
   },
   { id:'briefing', kind:'fields', title:'Vérifications avant intervention', eyebrow:'Étape 2',
     fields:[
-      {key:'modes_operatoires', label:'Les modes opératoires et/ou analyses de risques sont disponibles sur le lieu d’intervention ?', type:'radio-options', options:OUINON, entry:'entry.552196749', required:true},
-      {key:'risques_identifies', label:'Les risques de l’intervention et les parades associées ont tous été identifiés ?', type:'radio-options', options:OUINON, entry:'entry.635237235', required:true},
-      {key:'conditions_travail', label:'Les conditions de travail (risques, moyens techniques et humains,...) sont conformes à ce qui a été prescrit ?', type:'radio-options', options:OUINON, entry:'entry.1036520703', required:true},
-      {key:'points_surveillance', label:'Les points particuliers de surveillance sont connus ?', type:'radio-options', options:['Oui','Non','Non concerné'], entry:'entry.1509019824', required:true},
-      {key:'roles_responsabilites', label:'Les rôles et responsabilités de chacun sont connus ?', type:'radio-options', options:OUINON, entry:'entry.1817095001', required:true},
-      {key:'rex_pris_compte', label:'Si un REX a été formalisé sur ce type d’intervention, il a été pris en compte avant de commencer les travaux ?', type:'radio-options', options:['Oui','Non','Non concerné'], entry:'entry.1628579450', required:true},
+      {key:'modes_operatoires', label:'Les modes opératoires et/ou analyses de risques sont disponibles sur le lieu d’intervention ?', type:'radio-options', checkNo:true, options:OUINON, entry:'entry.552196749', required:true},
+      {key:'risques_identifies', label:'Les risques de l’intervention et les parades associées ont tous été identifiés ?', type:'radio-options', checkNo:true, options:OUINON, entry:'entry.635237235', required:true},
+      {key:'conditions_travail', label:'Les conditions de travail (risques, moyens techniques et humains,...) sont conformes à ce qui a été prescrit ?', type:'radio-options', checkNo:true, options:OUINON, entry:'entry.1036520703', required:true},
+      {key:'points_surveillance', label:'Les points particuliers de surveillance sont connus ?', type:'radio-options', checkNo:true, options:['Oui','Non','Non concerné'], entry:'entry.1509019824', required:true},
+      {key:'roles_responsabilites', label:'Les rôles et responsabilités de chacun sont connus ?', type:'radio-options', checkNo:true, options:OUINON, entry:'entry.1817095001', required:true},
+      {key:'rex_pris_compte', label:'Si un REX a été formalisé sur ce type d’intervention, il a été pris en compte avant de commencer les travaux ?', type:'radio-options', checkNo:true, options:['Oui','Non','Non concerné'], entry:'entry.1628579450', required:true},
       {key:'observations', label:'Observations / Actions d’amélioration', type:'textarea', entry:'entry.485787779'},
     ]
   },
@@ -615,16 +614,12 @@ const STEPS_PREJOB = [
    ============================================================ */
 const FORMS = [
   { id:'audit-terrain', name:'Audit terrain', desc:'Audit SSE sur chantier', emoji:'🦺',
-    actionUrl:'https://docs.google.com/forms/d/e/1FAIpQLSeYrcDffYtNYAPO2UF0m-tpcpsXvZDnuG0-X_KAcQ6EwXDD2g/formResponse',
     steps: STEPS_AUDIT_TERRAIN },
   { id:'remontee', name:'Situation dangereuse', desc:'Signaler une situation dangereuse', emoji:'⚠️',
-    actionUrl:'https://docs.google.com/forms/d/e/1FAIpQLScSTQUoR2zd9B3R6AQogonwwpw70eiyrYmAKL2HjqsKaLl0KQ/formResponse',
     steps: STEPS_REMONTEE },
   { id:'pre-job', name:'Pré job briefing', desc:'Mise au travail', emoji:'🧰',
-    actionUrl:'https://docs.google.com/forms/d/e/1FAIpQLSeArzsjMt3Dc5siF9roVimLSr5qP1Q5cCL2QDh4AYR1KbZUBA/formResponse',
     steps: STEPS_PREJOB },
   { id:'audit-vehicule', name:'Audit véhicule', desc:'Contrôle du véhicule', emoji:'🚐',
-    actionUrl:'https://docs.google.com/forms/d/e/1FAIpQLSeKZ1Aj_A6lCMR5NzbexVx8wHf0NCxio0G--VndqNIW51MfWQ/formResponse',
     steps: STEPS_VEHICULE },
 ];
 function getForm(id){ return FORMS.find(f => f.id === id); }
@@ -818,72 +813,121 @@ function stepHasAnyAnswer(step){
 }
 
 /* ============================================================
-   SUBMISSION — POST directly into the relevant Google Form
+   SUBMISSION — envoi vers la base Supabase (table "submissions")
    ============================================================ */
-function buildFormParams(steps, data){
-  const p = new URLSearchParams();
+function rowStatus(v){ return BAD_VALUES.has(v) ? 'nc' : NEUTRAL_VALUES.has(v) ? 'so' : 'ok'; }
+function hasValue(v){ return Array.isArray(v) ? v.length > 0 : (v !== undefined && v !== null && String(v).trim() !== ''); }
 
-  function addField(f){
-    if(f.type === 'note') return;
-    const v = data[f.key];
-    if(v === undefined || v === '' || v === null) return;
-    if(f.type === 'date'){
-      const parts = String(v).split('-');
-      if(parts.length === 3){
-        p.append(f.entry+'_year', parts[0]);
-        p.append(f.entry+'_month', String(parseInt(parts[1],10)));
-        p.append(f.entry+'_day', String(parseInt(parts[2],10)));
-      }
-    } else if(f.type === 'checkbox-options'){
-      (Array.isArray(v) ? v : []).forEach(opt => p.append(f.entry, opt));
-    } else {
-      p.append(f.entry, v);
-    }
-  }
-  function addRatedItem(item){
-    if(data[item.key] !== undefined) p.append(item.entry, data[item.key]);
-    if(item.commentEntry && data[item.commentKey]) p.append(item.commentEntry, data[item.commentKey]);
-  }
+function buildPayload(form, data){
+  const sections = [];
+  let good = 0, bad = 0, neutral = 0;
+  const count = s => { if(s === 'ok') good++; else if(s === 'nc') bad++; else if(s === 'so') neutral++; };
+  const disp = v => Array.isArray(v) ? v.join(', ') : String(v);
 
-  steps.forEach(step => {
+  form.steps.forEach(step => {
+    const rows = [];
+    let comment = '';
+
+    const addField = f => {
+      if(f.type === 'note') return;
+      const v = data[f.key];
+      if(!hasValue(v)) return;
+      const row = { label: f.label, value: f.type === 'date' ? fmtDate(v) : disp(v) };
+      if(f.checkNo){ row.status = v === 'Non' ? 'nc' : v === 'Oui' ? 'ok' : 'so'; count(row.status); }
+      if(f.type === 'scale-inline') row.num = Number(v);
+      if(f.type === 'textarea') row.long = true;
+      rows.push(row);
+    };
+    const addExclusive = item => {
+      const v = data[item.key];
+      if(v === undefined) return null;
+      const s = rowStatus(v);
+      count(s);
+      const row = { label: item.label, value: v, status: s };
+      rows.push(row);
+      return row;
+    };
+    const addGridItems = (items, options, exclusive) => {
+      items.forEach(item => {
+        if(exclusive){ addExclusive(item); return; }
+        const sel = options.filter(o => data[item.key + '__' + o]);
+        if(!sel.length) return;
+        const row = { label: item.label, value: sel.join(' + ') };
+        if(sel.includes('Requis')){ row.status = sel.includes('Porté') ? 'ok' : 'nc'; count(row.status); }
+        rows.push(row);
+      });
+    };
+    const addScale = (label, key) => {
+      if(data[key] === undefined) return;
+      rows.push({ label, value: data[key] + '/5', num: Number(data[key]) });
+    };
+    const addRated = item => {
+      const row = addExclusive(item);
+      if(row && data[item.commentKey]) row.comment = data[item.commentKey];
+    };
+
     if(step.kind === 'fields'){
       step.fields.forEach(addField);
     } else if(step.kind === 'grid'){
-      step.items.forEach(item => {
-        if(step.exclusive){ if(data[item.key] !== undefined) p.append(item.entry, data[item.key]); }
-        else { step.options.forEach(o => { if(data[item.key+'__'+o]) p.append(item.entry, o); }); }
-      });
-      if(step.commentEntry && data[step.commentKey]) p.append(step.commentEntry, data[step.commentKey]);
+      addGridItems(step.items, step.options, step.exclusive);
+      comment = data[step.commentKey] || '';
     } else if(step.kind === 'mixed'){
       step.fields.forEach(addField);
-      step.grid.items.forEach(item => { if(data[item.key] !== undefined) p.append(item.entry, data[item.key]); });
-      if(step.commentEntry && data[step.commentKey]) p.append(step.commentEntry, data[step.commentKey]);
+      addGridItems(step.grid.items, step.grid.options, step.grid.exclusive);
+      comment = data[step.commentKey] || '';
     } else if(step.kind === 'scale'){
-      step.items.forEach(item => { if(data[item.key] !== undefined) p.append(item.entry, String(data[item.key])); });
-      if(step.commentEntry && data[step.commentKey]) p.append(step.commentEntry, data[step.commentKey]);
+      step.items.forEach(item => addScale(item.label, item.key));
+      comment = data[step.commentKey] || '';
     } else if(step.kind === 'scale-single'){
-      if(data[step.key] !== undefined) p.append(step.entry, String(data[step.key]));
-      if(step.commentEntry && data[step.commentKey]) p.append(step.commentEntry, data[step.commentKey]);
+      addScale(step.label, step.key);
+      comment = data[step.commentKey] || '';
     } else if(step.kind === 'info-scale'){
-      if(data[step.scaleKey] !== undefined) p.append(step.scaleEntry, String(data[step.scaleKey]));
+      addScale(step.scaleLabel, step.scaleKey);
     } else if(step.kind === 'rated-list'){
-      step.items.forEach(addRatedItem);
+      step.items.forEach(addRated);
     } else if(step.kind === 'mixed-rated'){
-      step.rated.items.forEach(addRatedItem);
+      step.rated.items.forEach(addRated);
       step.fields.forEach(addField);
+    }
+
+    if(rows.length || comment){
+      const sec = { title: step.title, rows };
+      if(comment) sec.comment = comment;
+      sections.push(sec);
     }
   });
 
-  return p;
+  const pick = keys => { for(const k of keys){ if(hasValue(data[k])) return String(data[k]); } return null; };
+  const meta = {};
+  if(data.gravite !== undefined) meta.gravite = Number(data.gravite);
+  if(data.probabilite !== undefined) meta.probabilite = Number(data.probabilite);
+
+  return {
+    id: data._id,
+    form_id: form.id,
+    form_name: form.name,
+    audit_date: pick(['date_audit','fait_le','formalise_le']),
+    chantier: pick(['chantier','lieu','designation','immatriculation']),
+    client: pick(['client']),
+    auteur: pick(['auditeurs','redacteur','nom_prenom','animateur']),
+    good, bad, neutral,
+    rate: (good + bad) > 0 ? Math.round(good / (good + bad) * 1000) / 10 : null,
+    created_at: data.submittedAt,
+    payload: { v: 1, meta, sections },
+  };
 }
 
-async function postToGoogleForm(actionUrl, steps, data){
-  const params = buildFormParams(steps, data);
-  await fetch(actionUrl, {
-    method: 'POST', mode: 'no-cors',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: params.toString(),
+async function postRecord(form, record){
+  const cfg = window.ARTEIC_CONFIG || {};
+  if(!cfg.SUPABASE_URL || !cfg.SUPABASE_ANON_KEY) throw new Error('config manquante');
+  const headers = { 'apikey': cfg.SUPABASE_ANON_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' };
+  if(cfg.SUPABASE_ANON_KEY.startsWith('eyJ')) headers['Authorization'] = 'Bearer ' + cfg.SUPABASE_ANON_KEY;
+  const res = await fetch(cfg.SUPABASE_URL + '/rest/v1/submissions', {
+    method: 'POST',
+    headers,
+    body: JSON.stringify(buildPayload(form, record)),
   });
+  if(!res.ok && res.status !== 409) throw new Error('HTTP ' + res.status);
 }
 
 async function submitEntry(){
@@ -903,12 +947,12 @@ async function submitEntry(){
   goTab('list');
 
   try{
-    await postToGoogleForm(form.actionUrl, form.steps, record);
+    await postRecord(form, record);
     record._status = 'sent';
-    showToast('Envoyé au Google Form ✓');
+    showToast('Envoyé ✓');
   }catch(e){
     record._status = 'pending';
-    showToast('Hors connexion — sera renvoyé automatiquement');
+    showToast('Envoi impossible — sera renvoyé automatiquement');
   }
   const h2 = loadHistory(form.id);
   const idx = h2.findIndex(a => a._id === record._id);
@@ -926,7 +970,7 @@ async function retryPendingAll(){
     let changed = false;
     for(const record of history){
       if(record._status !== 'pending') continue;
-      try{ await postToGoogleForm(form.actionUrl, form.steps, record); record._status = 'sent'; changed = true; anyChanged = true; }
+      try{ await postRecord(form, record); record._status = 'sent'; changed = true; anyChanged = true; }
       catch(e){ /* still offline */ }
     }
     if(changed) saveHistory(form.id, history);
@@ -939,7 +983,7 @@ async function resendOne(id){
   const history = loadHistory(form.id);
   const record = history.find(a => a._id === id);
   if(!record) return;
-  try{ await postToGoogleForm(form.actionUrl, form.steps, record); record._status = 'sent'; saveHistory(form.id, history); showToast('Envoyé ✓'); render(); }
+  try{ await postRecord(form, record); record._status = 'sent'; saveHistory(form.id, history); showToast('Envoyé ✓'); render(); }
   catch(e){ showToast('Toujours hors connexion'); }
 }
 
@@ -1270,7 +1314,7 @@ function onTapNewEntry(){ if(appState.tab === 'form') return; goTab('form'); }
 
 function renderHomeScreen(){
   let html = '<h2 class="home-title">Formulaires</h2>';
-  html += '<div class="home-sub">Sélectionnez un formulaire — les réponses sont envoyées directement dans le Google Form correspondant.</div>';
+  html += '<div class="home-sub">Sélectionnez un formulaire — les réponses sont envoyées directement au tableau de bord ARTEIC.</div>';
   const pending = totalPendingCount();
   if(pending){
     html += '<div class="conn-banner off">'+pending+' saisie'+(pending>1?'s':'')+' en attente d’envoi au total.</div>';
@@ -1354,7 +1398,7 @@ function renderListScreen(){
   html += '<div class="screen-desc">'+list.length+' saisie'+(list.length>1?'s':'')+' sur cet appareil</div>';
 
   html += '<div class="conn-banner ' + (navigator.onLine ? 'on' : 'off') + '">'
-    + (navigator.onLine ? 'Chaque envoi va directement dans le Google Form « '+esc(form.name)+' » (onglet Réponses).' : 'Hors connexion : les envois seront mis en attente puis renvoyés automatiquement.')
+    + (navigator.onLine ? 'Chaque envoi est transmis directement au tableau de bord ARTEIC.' : 'Hors connexion : les envois seront mis en attente puis renvoyés automatiquement.')
     + '</div>';
   if(pendingCount) html += '<div class="conn-banner off">'+pendingCount+' en attente d’envoi.</div>';
 
