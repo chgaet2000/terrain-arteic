@@ -536,20 +536,15 @@ const STEPS_REMONTEE = [
     fields:[
       {key:'nom_prenom', label:'Nom et Prénom', type:'text', entry:'entry.1484586964', required:true},
       {key:'fait_le', label:'Fait le', type:'date', entry:'entry.1561106773', required:true},
-      {key:'lieu', label:'Lieu', type:'text', entry:'entry.214681496', required:true},
-      {key:'affaire', label:'Nom de l’affaire', type:'text', entry:'entry.1368597710'},
+      {key:'lieu', label:'Lieu / nom du chantier', type:'text', entry:'entry.214681496', required:true},
       {key:'personnes_concernees', label:'Nom des personnes concernées', type:'textarea', entry:'entry.1934661983'},
     ]
   },
   { id:'evenement', kind:'fields', title:'La situation dangereuse', eyebrow:'Étape 3',
     fields:[
-      {key:'type', label:'Type', type:'radio-options', options:['Sécurité','Santé','Environnement','Autre'], entry:'entry.638256093'},
+      {key:'type', label:'Type', type:'radio-options', options:['Sécurité','Santé','Environnement'], entry:'entry.638256093'},
       {key:'description', label:'Description détaillée', type:'textarea', entry:'entry.1272027301'},
-      {key:'gravite', label:'Gravité de l’évènement', type:'scale-inline', entry:'entry.2133655917', required:true},
-      {key:'probabilite', label:'Probabilité de l’évènement', type:'scale-inline', entry:'entry.208334913', required:true},
-      {key:'action_immediate', label:'Action(s) immédiate(s)', type:'textarea', entry:'entry.1095865334'},
-      {key:'actions_a_reporter', label:'Actions à reporter dans le plan d’actions', type:'radio-options', options:OUINON, entry:'entry.827017756'},
-      {key:'detail_actions', label:'Détail des actions à reporter', type:'textarea', entry:'entry.1946863944'},
+      {key:'detail_actions', label:'Actions proposées', type:'textarea', entry:'entry.1946863944'},
     ]
   },
   { id:'review', kind:'review', title:'Récapitulatif', eyebrow:'Étape 4' },
