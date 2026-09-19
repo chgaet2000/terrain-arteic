@@ -360,6 +360,15 @@
   .modal-hint{ margin:8px 2px 0; font-size:12px; color:var(--ink-faint); }
   .modal-foot{ display:flex; gap:8px; padding:12px 16px; border-top:1px solid var(--line); }
 
+  .photo-grid{ display:grid; grid-template-columns:repeat(2,1fr); gap:8px; margin-bottom:12px; }
+  .photo-thumb{ position:relative; border-radius:var(--radius-sm); overflow:hidden; border:1px solid var(--line-strong); background:var(--surface-2); aspect-ratio:4/3; }
+  .photo-thumb img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .photo-del{ position:absolute; top:6px; right:6px; width:30px; height:30px; border-radius:99px; border:none; background:rgba(20,18,14,.7); color:#fff; font-size:14px; cursor:pointer; }
+  .photo-actions{ display:flex; flex-direction:column; gap:8px; }
+  .photo-actions .btn{ width:100%; cursor:pointer; }
+  .field .photo-actions label.btn{ display:inline-flex; margin:0; font-size:15px; }
+  .field .photo-actions label.btn-primary{ color:var(--accent-ink); }
+  .btn.is-disabled{ opacity:.45; pointer-events:none; }
   .visually-hidden{ position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0,0,0,0); }
 
   /* ---------- Chip select (checkbox / radio option lists) ---------- */
@@ -517,7 +526,13 @@ const STEPS_AUDIT_TERRAIN = [
    FORM 2 — Remontée de situations dangereuses
    ============================================================ */
 const STEPS_REMONTEE = [
-  { id:'identification', kind:'fields', title:'Identification', eyebrow:'Étape 1',
+  { id:'photos', kind:'fields', title:'Photos', eyebrow:'Étape 1',
+    help:'Prenez une ou plusieurs photos de la situation dangereuse (facultatif).',
+    fields:[
+      {key:'photos', label:'Photos de la situation', type:'photos', max:4},
+    ]
+  },
+  { id:'identification', kind:'fields', title:'Identification', eyebrow:'Étape 2',
     fields:[
       {key:'nom_prenom', label:'Nom et Prénom', type:'text', entry:'entry.1484586964', required:true},
       {key:'fait_le', label:'Fait le', type:'date', entry:'entry.1561106773', required:true},
@@ -526,7 +541,7 @@ const STEPS_REMONTEE = [
       {key:'personnes_concernees', label:'Nom des personnes concernées', type:'textarea', entry:'entry.1934661983'},
     ]
   },
-  { id:'evenement', kind:'fields', title:'La situation dangereuse', eyebrow:'Étape 2',
+  { id:'evenement', kind:'fields', title:'La situation dangereuse', eyebrow:'Étape 3',
     fields:[
       {key:'type', label:'Type', type:'radio-options', options:['Sécurité','Santé','Environnement','Autre'], entry:'entry.638256093'},
       {key:'description', label:'Description détaillée', type:'textarea', entry:'entry.1272027301'},
@@ -537,7 +552,7 @@ const STEPS_REMONTEE = [
       {key:'detail_actions', label:'Détail des actions à reporter', type:'textarea', entry:'entry.1946863944'},
     ]
   },
-  { id:'review', kind:'review', title:'Récapitulatif', eyebrow:'Étape 3' },
+  { id:'review', kind:'review', title:'Récapitulatif', eyebrow:'Étape 4' },
 ];
 
 /* ============================================================
@@ -830,7 +845,7 @@ function buildPayload(form, data){
     let comment = '';
 
     const addField = f => {
-      if(f.type === 'note') return;
+      if(f.type === 'note' || f.type === 'photos') return;
       const v = data[f.key];
       if(!hasValue(v)) return;
       const row = { label: f.label, value: f.type === 'date' ? fmtDate(v) : disp(v) };
@@ -914,13 +929,87 @@ function buildPayload(form, data){
     good, bad, neutral,
     rate: (good + bad) > 0 ? Math.round(good / (good + bad) * 1000) / 10 : null,
     created_at: data.submittedAt,
-    payload: { v: 1, meta, sections },
+    payload: {
+      v: 1, meta, sections,
+      photos: (data.photos || []).filter(p => p.path).map(p => ({ path: p.path })),
+    },
   };
+}
+
+/* ---------- Photos ---------- */
+function compressImage(file, maxSide, quality){
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      const s = Math.min(1, maxSide / Math.max(img.width, img.height));
+      const w = Math.round(img.width * s), h = Math.round(img.height * s);
+      const c = document.createElement('canvas');
+      c.width = w; c.height = h;
+      c.getContext('2d').drawImage(img, 0, 0, w, h);
+      resolve(c.toDataURL('image/jpeg', quality));
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('image illisible')); };
+    img.src = url;
+  });
+}
+async function addPhotos(key, input, max){
+  const files = Array.from(input.files || []);
+  input.value = '';
+  const arr = Array.isArray(state[key]) ? state[key].slice() : [];
+  for(const file of files){
+    if(arr.length >= max){ showToast('Maximum ' + max + ' photos'); break; }
+    try{ arr.push({ id: uid(), data: await compressImage(file, 1280, 0.7) }); }
+    catch(e){ showToast('Photo illisible'); }
+  }
+  state[key] = arr; saveDraft(); render();
+}
+function removePhoto(key, id){
+  state[key] = (Array.isArray(state[key]) ? state[key] : []).filter(p => p.id !== id);
+  saveDraft(); render();
+}
+function renderPhotosField(f){
+  const arr = Array.isArray(state[f.key]) ? state[f.key] : [];
+  const full = arr.length >= f.max;
+  const thumbs = arr.map(p =>
+    '<div class="photo-thumb"><img src="' + p.data + '" alt="Photo">'
+    + '<button type="button" class="photo-del" onclick="removePhoto(\'' + f.key + '\',\'' + p.id + '\')" aria-label="Supprimer la photo">✕</button></div>'
+  ).join('');
+  const dis = full ? ' disabled' : '';
+  return '<div class="field"><label>' + esc(f.label) + ' <span style="color:var(--ink-faint);font-weight:400;">(' + arr.length + '/' + f.max + ')</span></label>'
+    + (thumbs ? '<div class="photo-grid">' + thumbs + '</div>' : '')
+    + '<div class="photo-actions">'
+    + '<label class="btn btn-primary' + (full ? ' is-disabled' : '') + '">Prendre une photo'
+    + '<input type="file" accept="image/*" capture="environment" class="visually-hidden"' + dis + ' onchange="addPhotos(\'' + f.key + '\',this,' + f.max + ')"></label>'
+    + '<label class="btn btn-ghost' + (full ? ' is-disabled' : '') + '">Choisir dans la galerie'
+    + '<input type="file" accept="image/*" multiple class="visually-hidden"' + dis + ' onchange="addPhotos(\'' + f.key + '\',this,' + f.max + ')"></label>'
+    + '</div></div>';
+}
+
+async function uploadPhotos(record){
+  const cfg = window.ARTEIC_CONFIG || {};
+  for(const p of (record.photos || [])){
+    if(p.path) continue;
+    const path = record._id + '/' + p.id + '.jpg';
+    const blob = await (await fetch(p.data)).blob();
+    const res = await fetch(cfg.SUPABASE_URL + '/storage/v1/object/photos/' + path, {
+      method: 'POST',
+      headers: { 'apikey': cfg.SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + cfg.SUPABASE_ANON_KEY, 'Content-Type': 'image/jpeg' },
+      body: blob,
+    });
+    if(!res.ok){
+      const j = await res.json().catch(() => ({}));
+      if(String(j.statusCode) !== '409' && j.error !== 'Duplicate') throw new Error('photo HTTP ' + res.status);
+    }
+    p.path = path;
+  }
 }
 
 async function postRecord(form, record){
   const cfg = window.ARTEIC_CONFIG || {};
   if(!cfg.SUPABASE_URL || !cfg.SUPABASE_ANON_KEY) throw new Error('config manquante');
+  await uploadPhotos(record);
   const headers = { 'apikey': cfg.SUPABASE_ANON_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' };
   if(cfg.SUPABASE_ANON_KEY.startsWith('eyJ')) headers['Authorization'] = 'Bearer ' + cfg.SUPABASE_ANON_KEY;
   const res = await fetch(cfg.SUPABASE_URL + '/rest/v1/submissions', {
@@ -929,6 +1018,7 @@ async function postRecord(form, record){
     body: JSON.stringify(buildPayload(form, record)),
   });
   if(!res.ok && res.status !== 409) throw new Error('HTTP ' + res.status);
+  (record.photos || []).forEach(p => { delete p.data; });
 }
 
 async function submitEntry(){
@@ -1014,6 +1104,7 @@ function recordToText(form, data){
     if(step.kind === 'fields'){
       step.fields.forEach(f => {
         if(f.type==='note') return;
+        if(f.type==='photos'){ if(Array.isArray(data[f.key]) && data[f.key].length) block.push(f.label+' : '+data[f.key].length+' photo(s)'); return; }
         const v = data[f.key];
         if(Array.isArray(v) && v.length) block.push(f.label+' : '+v.join(', '));
         else if(v) block.push(f.label+' : '+v);
@@ -1113,6 +1204,7 @@ function renderField(f){
   if(f.type === 'note'){
     return '<div class="field" style="color:var(--ink-dim);font-size:13.5px;font-style:italic;">'+esc(f.label)+'</div>';
   }
+  if(f.type === 'photos') return renderPhotosField(f);
   if(f.type === 'checkbox-options' || f.type === 'radio-options'){
     return '<div class="field"><label>'+esc(f.label)+req+'</label>'+renderChipSelect(f)+'</div>';
   }
@@ -1432,6 +1524,7 @@ function renderDetailScreen(){
     if(step.kind === 'fields'){
       step.fields.forEach(f => {
         if(f.type==='note') return;
+        if(f.type==='photos'){ if(Array.isArray(data[f.key]) && data[f.key].length) sectionHtml += '<div class="kv-row"><span class="k">'+esc(f.label)+'</span><span class="v">'+data[f.key].length+' photo(s)</span></div>'; return; }
         const v = data[f.key];
         const display = Array.isArray(v) ? v.join(', ') : v;
         if(display) sectionHtml += '<div class="kv-row"><span class="k">'+esc(f.label)+'</span><span class="v">'+esc(display)+'</span></div>';
