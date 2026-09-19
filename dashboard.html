@@ -106,6 +106,8 @@
   .tile.ok .n{ color:var(--ok); } .tile.warn .n{ color:var(--warn); }
   .todo{ background:var(--warn-soft); color:var(--warn); border-radius:var(--radius-sm); padding:12px 14px; margin-bottom:18px; font-size:14px; }
   .todo h3{ font-size:15px; margin-bottom:6px; } .todo ul{ margin:0; padding-left:18px; }
+  .photos{ display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:10px; margin-top:8px; }
+  .photos img{ width:100%; border-radius:var(--radius-sm); border:1px solid var(--line); display:block; break-inside:avoid; }
   .sec{ margin-top:20px; break-inside:avoid; }
   .sec h3{ font-size:17px; color:var(--accent); border-bottom:2px solid var(--accent); padding-bottom:4px; margin-bottom:4px; }
   .kv{ display:flex; justify-content:space-between; gap:16px; padding:7px 0; border-bottom:1px solid var(--line); font-size:14px; }
@@ -322,7 +324,7 @@ function renderTable(){
   }));
   const sorted = VIEW.slice().sort((a,b) => { const x = sortVal(a,sortKey), y = sortVal(b,sortKey); return (x < y ? -1 : x > y ? 1 : 0) * (sortDir === 'asc' ? 1 : -1); });
   $('tbody').innerHTML = sorted.slice(0, shown).map(r =>
-    '<tr class="row" data-id="'+esc(r.id)+'"><td class="mono">'+fmtDate(rowDate(r))+'</td><td>'+esc(r.form_name)+'</td><td>'+esc(r.chantier||'—')+'</td><td>'+esc(r.client||'—')+'</td><td>'+esc(r.auteur||'—')+'</td>'
+    '<tr class="row" data-id="'+esc(r.id)+'"><td class="mono">'+fmtDate(rowDate(r))+'</td><td>'+esc(r.form_name)+((r.payload?.photos || []).length ? ' <span class="badge acc">'+r.payload.photos.length+' photo'+(r.payload.photos.length > 1 ? 's' : '')+'</span>' : '')+'</td><td>'+esc(r.chantier||'—')+'</td><td>'+esc(r.client||'—')+'</td><td>'+esc(r.auteur||'—')+'</td>'
     + '<td><span class="badge ok">'+r.good+'</span></td><td>'+(r.bad > 0 ? '<span class="badge warn">'+r.bad+'</span>' : '<span class="badge so">0</span>')+'</td><td>'+rateBadge(r.rate)+'</td></tr>'
   ).join('') || '<tr><td colspan="8" class="empty-note">Aucune saisie.</td></tr>';
   $('tbody').querySelectorAll('tr.row').forEach(tr => tr.addEventListener('click', () => openReport(tr.dataset.id)));
@@ -347,6 +349,13 @@ function statusBadge(s, v){
   if(s === 'so') return '<span class="badge so">'+esc(v)+'</span>';
   return esc(v);
 }
+async function loadPhotos(paths){
+  const { data, error } = await sb.storage.from('photos').createSignedUrls(paths, 3600);
+  const box = $('reportPhotos'); if(!box) return;
+  const urls = (data || []).filter(d => d.signedUrl).map(d => d.signedUrl);
+  if(error || !urls.length){ box.innerHTML = '<div class="empty-note">Photos indisponibles.</div>'; return; }
+  box.innerHTML = urls.map(u => '<a href="'+esc(u)+'" target="_blank" rel="noopener"><img src="'+esc(u)+'" alt="Photo de la situation"></a>').join('');
+}
 function openReport(id){
   const r = ALL.find(x => x.id === id); if(!r) return;
   const secs = r.payload?.sections || [];
@@ -364,6 +373,8 @@ function openReport(id){
   });
 
   const m = r.payload?.meta || {};
+  const photoPaths = (r.payload?.photos || []).map(p => p.path).filter(Boolean);
+  const nPhotos = photoPaths.length;
   $('reportView').innerHTML =
     '<div class="report"><div class="report-bar"><button class="btn btn-ghost" id="rClose">← Retour</button><div style="display:flex;gap:8px;">'
     + (ROLE === 'admin' ? '<button class="btn btn-danger" id="rDel">Supprimer</button>' : '')
@@ -378,9 +389,11 @@ function openReport(id){
     + '</div>'
     + ((r.good + r.bad + r.neutral) > 0 ? '<div class="summary"><div class="tile ok"><div class="n">'+r.good+'</div><div class="l">Conformes</div></div><div class="tile warn"><div class="n">'+r.bad+'</div><div class="l">Non-conformités</div></div><div class="tile"><div class="n">'+r.neutral+'</div><div class="l">Sans objet</div></div><div class="tile"><div class="n">'+(r.rate == null ? '—' : String(r.rate).replace('.',',')+' %')+'</div><div class="l">Conformité</div></div></div>' : '')
     + (ncRows.length ? '<div class="todo"><h3>Points à traiter ('+ncRows.length+')</h3><ul>'+ncRows.map(n => '<li><b>'+esc(n.sec)+'</b> — '+esc(n.label)+' : '+esc(n.value)+'</li>').join('')+'</ul></div>' : '')
+    + (nPhotos ? '<div class="sec"><h3>Photos ('+nPhotos+')</h3><div class="photos" id="reportPhotos"><div class="empty-note">Chargement des photos…</div></div></div>' : '')
     + body
     + '<div class="sheet-foot">Saisi le '+fmtDateTime(r.created_at)+' · Réf. '+esc(r.id)+'</div></div></div>';
   show('reportView', true); $('reportView').scrollTop = 0;
+  if(nPhotos) loadPhotos(photoPaths);
   $('rClose').addEventListener('click', () => show('reportView', false));
   $('rPrint').addEventListener('click', () => { const t = document.title; document.title = 'Rapport ' + r.form_name + ' ' + (r.chantier || '') + ' ' + rowDate(r); window.print(); document.title = t; });
   const del = $('rDel');
@@ -388,6 +401,7 @@ function openReport(id){
     if(!confirm('Supprimer définitivement cette saisie ?')) return;
     const { data, error } = await sb.from('submissions').delete().eq('id', id).select();
     if(error || !data || !data.length){ alert('Suppression impossible.'); return; }
+    if(photoPaths.length) await sb.storage.from('photos').remove(photoPaths);
     ALL = ALL.filter(x => x.id !== id); show('reportView', false); apply();
   });
 }
