@@ -1,0 +1,1459 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Terrain">
+<meta name="theme-color" content="#1f4e63">
+<title>Terrain ARTEIC</title>
+<link rel="apple-touch-icon" href="data:image/png;base64,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">
+<link rel="icon" type="image/png" href="data:image/png;base64,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">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<style>
+  :root{
+    --bg:#f3f1ea;
+    --surface:#ffffff;
+    --surface-2:#eae6d8;
+    --ink:#1c1a15;
+    --ink-dim:#6b6558;
+    --ink-faint:#948d7c;
+    --line:#dcd6c4;
+    --line-strong:#c7bfa8;
+    --accent:#1f4e63;
+    --accent-ink:#ffffff;
+    --accent-soft:#dbe8ec;
+    --accent-soft-ink:#163b4c;
+    --ok:#2f7d4f;
+    --ok-soft:#dcefe1;
+    --warn:#b5451c;
+    --warn-soft:#f6dfd3;
+    --muted-chip:#8a8272;
+    --muted-chip-soft:#e7e2d3;
+    --shadow: 0 1px 2px rgba(28,26,21,0.06), 0 6px 16px -8px rgba(28,26,21,0.18);
+    --radius: 14px;
+    --radius-sm: 9px;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#14181a;
+      --surface:#1c2225;
+      --surface-2:#232a2d;
+      --ink:#eef0ea;
+      --ink-dim:#9aa39c;
+      --ink-faint:#717b76;
+      --line:#2c3336;
+      --line-strong:#3a4245;
+      --accent:#68b0c9;
+      --accent-ink:#0d1c21;
+      --accent-soft:#20343b;
+      --accent-soft-ink:#a9d7e6;
+      --ok:#5cbd83;
+      --ok-soft:#1c3327;
+      --warn:#e8875e;
+      --warn-soft:#3a2419;
+      --muted-chip:#8b9490;
+      --muted-chip-soft:#262d2a;
+      --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 20px -10px rgba(0,0,0,0.5);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#14181a;
+    --surface:#1c2225;
+    --surface-2:#232a2d;
+    --ink:#eef0ea;
+    --ink-dim:#9aa39c;
+    --ink-faint:#717b76;
+    --line:#2c3336;
+    --line-strong:#3a4245;
+    --accent:#68b0c9;
+    --accent-ink:#0d1c21;
+    --accent-soft:#20343b;
+    --accent-soft-ink:#a9d7e6;
+    --ok:#5cbd83;
+    --ok-soft:#1c3327;
+    --warn:#e8875e;
+    --warn-soft:#3a2419;
+    --muted-chip:#8b9490;
+    --muted-chip-soft:#262d2a;
+    --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 20px -10px rgba(0,0,0,0.5);
+  }
+
+  *{ box-sizing:border-box; }
+  html,body{ height:100%; }
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'IBM Plex Sans', ui-sans-serif, system-ui, sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,.display{
+    font-family:'Barlow Condensed', 'IBM Plex Sans', sans-serif;
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:0.02em;
+    text-wrap:balance;
+    margin:0;
+  }
+  .mono{ font-family:'IBM Plex Mono', ui-monospace, monospace; font-variant-numeric:tabular-nums; }
+  button, input, textarea{ font-family:inherit; }
+  input, textarea{ color:var(--ink); }
+  ::selection{ background:var(--accent-soft); color:var(--accent-soft-ink); }
+  @media (prefers-reduced-motion: reduce){
+    *{ animation-duration:0.001ms !important; transition-duration:0.001ms !important; }
+  }
+
+  #app{
+    max-width:560px;
+    margin:0 auto;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    background:var(--bg);
+    position:relative;
+  }
+
+  /* ---------- App bar ---------- */
+  .appbar{
+    position:sticky; top:0; z-index:20;
+    background:var(--bg);
+    padding:calc(env(safe-area-inset-top,0px) + 14px) 18px 12px;
+    border-bottom:1px solid var(--line);
+  }
+  .appbar-row{ display:flex; align-items:baseline; justify-content:space-between; gap:10px; }
+  .appbar-title{ font-size:22px; line-height:1; }
+  .appbar-rev{ font-size:11px; color:var(--ink-faint); font-family:'IBM Plex Mono',monospace; white-space:nowrap; }
+  .appbar-sub{ margin-top:4px; font-size:13px; color:var(--ink-dim); display:flex; align-items:center; gap:6px; }
+  .sync-dot{ width:7px; height:7px; border-radius:50%; background:var(--muted-chip); flex:none; }
+  .sync-dot.on{ background:var(--ok); }
+  .progress-track{ margin-top:12px; height:4px; border-radius:99px; background:var(--surface-2); overflow:hidden; }
+  .progress-fill{ height:100%; background:var(--accent); border-radius:99px; transition:width .25s ease; }
+
+  /* ---------- Main content ---------- */
+  #view{ flex:1; padding:18px 18px 12px; padding-bottom:150px; }
+  .screen-title{ font-size:26px; margin-bottom:2px; }
+  .screen-desc{ color:var(--ink-dim); font-size:14px; margin-bottom:18px; }
+
+  .card{
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:18px;
+    box-shadow:var(--shadow);
+  }
+  .card + .card{ margin-top:14px; }
+  .step-eyebrow{ font-size:12px; color:var(--accent); font-weight:600; letter-spacing:.08em; text-transform:uppercase; font-family:'Barlow Condensed',sans-serif; }
+  .step-title{ font-size:22px; margin-top:2px; }
+  .step-help{ font-size:13.5px; color:var(--ink-dim); margin-top:6px; line-height:1.45; }
+
+  .field{ margin-top:16px; }
+  .field:first-child{ margin-top:0; }
+  .field label{ display:block; font-size:13.5px; font-weight:600; color:var(--ink); margin-bottom:6px; }
+  .field label .req{ color:var(--warn); margin-left:2px; }
+  .field input[type=text], .field input[type=date], .field textarea{
+    width:100%;
+    background:var(--surface-2);
+    border:1px solid var(--line-strong);
+    border-radius:var(--radius-sm);
+    padding:11px 12px;
+    font-size:15px;
+    color:var(--ink);
+    resize:none;
+    line-height:1.4;
+  }
+  .field textarea{ min-height:64px; }
+  .field input:focus, .field textarea:focus{
+    outline:2px solid var(--accent); outline-offset:1px; background:var(--surface);
+  }
+  .field input.err, .field textarea.err{ border-color:var(--warn); }
+
+  /* ---------- Grid / rating rows ---------- */
+  .legend{ display:flex; gap:14px; font-size:12px; color:var(--ink-dim); margin-bottom:12px; flex-wrap:wrap; }
+  .legend span{ display:inline-flex; align-items:center; gap:5px; }
+  .legend i{ width:9px; height:9px; border-radius:3px; display:inline-block; }
+
+  .item-row{ padding:14px 0; border-top:1px solid var(--line); }
+  .item-row:first-of-type{ border-top:none; padding-top:0; }
+  .item-label{ font-size:14.5px; line-height:1.4; margin-bottom:10px; }
+  .pill-group{ display:flex; gap:8px; flex-wrap:wrap; }
+  .pill{
+    flex:1 1 0; min-width:56px;
+    text-align:center;
+    padding:10px 6px;
+    border-radius:var(--radius-sm);
+    border:1px solid var(--line-strong);
+    background:var(--surface-2);
+    font-size:13.5px; font-weight:600;
+    color:var(--ink-dim);
+    cursor:pointer;
+    user-select:none;
+    -webkit-tap-highlight-color:transparent;
+    min-height:44px;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .pill.wide{ flex:1 1 auto; }
+  .pill:active{ transform:scale(0.97); }
+  .pill.sel-c{ background:var(--ok-soft); border-color:var(--ok); color:var(--ok); }
+  .pill.sel-nc{ background:var(--warn-soft); border-color:var(--warn); color:var(--warn); }
+  .pill.sel-so{ background:var(--muted-chip-soft); border-color:var(--muted-chip); color:var(--muted-chip); }
+  .pill.sel-accent{ background:var(--accent-soft); border-color:var(--accent); color:var(--accent-soft-ink); }
+
+  .scale-row{ display:flex; gap:7px; }
+  .scale-pill{
+    flex:1; text-align:center; padding:10px 0; border-radius:var(--radius-sm);
+    border:1px solid var(--line-strong); background:var(--surface-2);
+    font-family:'IBM Plex Mono',monospace; font-weight:600; font-size:15px; color:var(--ink-dim);
+    cursor:pointer; min-height:44px; display:flex; align-items:center; justify-content:center;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .scale-pill.sel{ background:var(--accent); border-color:var(--accent); color:var(--accent-ink); }
+  .scale-caption{ display:flex; justify-content:space-between; font-size:11px; color:var(--ink-faint); margin-top:5px; }
+
+  .info-block{ margin-top:14px; }
+  .info-block h4{ font-family:'Barlow Condensed',sans-serif; font-size:15px; text-transform:uppercase; letter-spacing:.03em; color:var(--accent); margin:0 0 6px; }
+  .info-block ul{ margin:0; padding-left:18px; font-size:13.5px; color:var(--ink-dim); line-height:1.5; }
+  .info-block li{ margin-bottom:2px; }
+  .info-card{ background:var(--surface-2); border-radius:var(--radius-sm); padding:14px 16px; margin-bottom:16px; }
+
+  /* ---------- Review ---------- */
+  .summary-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:16px; }
+  .summary-tile{ background:var(--surface-2); border-radius:var(--radius-sm); padding:12px 8px; text-align:center; }
+  .summary-tile .num{ font-family:'IBM Plex Mono',monospace; font-size:22px; font-weight:600; }
+  .summary-tile .lbl{ font-size:11px; color:var(--ink-dim); text-transform:uppercase; letter-spacing:.04em; margin-top:2px; }
+  .summary-tile.ok .num{ color:var(--ok); }
+  .summary-tile.warn .num{ color:var(--warn); }
+  .summary-tile.so .num{ color:var(--muted-chip); }
+
+  .alert{ border-radius:var(--radius-sm); padding:12px 14px; font-size:13.5px; line-height:1.5; margin-bottom:14px; }
+  .alert.warn{ background:var(--warn-soft); color:var(--warn); }
+  .alert.info{ background:var(--accent-soft); color:var(--accent-soft-ink); }
+  .alert ul{ margin:6px 0 0; padding-left:18px; }
+  .alert button.link{ background:none; border:none; padding:0; color:inherit; font-weight:600; text-decoration:underline; cursor:pointer; font-size:inherit; }
+
+  .nc-list{ list-style:none; margin:0; padding:0; }
+  .nc-list li{ display:flex; justify-content:space-between; gap:10px; padding:8px 0; border-top:1px solid var(--line); font-size:13.5px; }
+  .nc-list li:first-child{ border-top:none; }
+  .nc-list .sec{ color:var(--ink-faint); font-size:11.5px; display:block; }
+
+  /* ---------- Buttons ---------- */
+  .btn{
+    appearance:none; border:none; cursor:pointer;
+    border-radius:var(--radius-sm);
+    padding:13px 18px;
+    font-size:15px; font-weight:600;
+    display:inline-flex; align-items:center; justify-content:center; gap:8px;
+    min-height:46px;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .btn-primary{ background:var(--accent); color:var(--accent-ink); }
+  .btn-primary:disabled{ opacity:.45; cursor:not-allowed; }
+  .btn-ghost{ background:var(--surface-2); color:var(--ink); border:1px solid var(--line-strong); }
+  .btn-block{ width:100%; }
+  .btn-sm{ padding:8px 12px; font-size:13px; min-height:36px; }
+  .btn-danger-ghost{ background:transparent; color:var(--warn); border:1px solid var(--warn); }
+
+  /* ---------- Footer nav (form) ---------- */
+  .stepnav{
+    position:fixed; left:50%; transform:translateX(-50%);
+    bottom:64px; width:100%; max-width:560px;
+    background:var(--bg);
+    border-top:1px solid var(--line);
+    padding:10px 18px; display:flex; gap:10px; z-index:15;
+  }
+  .stepnav .btn{ flex:1; }
+
+  /* ---------- Tab bar ---------- */
+  .tabbar{
+    position:fixed; left:50%; transform:translateX(-50%); bottom:0; width:100%; max-width:560px;
+    display:flex; background:var(--surface); border-top:1px solid var(--line);
+    padding-bottom:env(safe-area-inset-bottom,0px);
+    z-index:16;
+  }
+  .tab{
+    flex:1; border:none; background:none; cursor:pointer;
+    display:flex; flex-direction:column; align-items:center; gap:3px;
+    padding:9px 4px 8px; color:var(--ink-faint); font-size:11px; font-weight:600;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .tab.active{ color:var(--accent); }
+  .tab svg{ width:22px; height:22px; }
+  .tab-badge{ position:relative; }
+  .tab-badge .dot{ position:absolute; top:-2px; right:-6px; width:8px; height:8px; border-radius:50%; background:var(--warn); }
+
+  /* ---------- Audit list ---------- */
+  .banner{ border-radius:var(--radius-sm); padding:11px 14px; font-size:12.5px; margin-bottom:14px; display:flex; gap:8px; align-items:flex-start; line-height:1.4; }
+  .banner.local{ background:var(--muted-chip-soft); color:var(--ink-dim); }
+  .banner.team{ background:var(--ok-soft); color:var(--ok); }
+
+  .fab-new{
+    display:flex; align-items:center; justify-content:center; gap:8px;
+    width:100%; padding:14px; border-radius:var(--radius);
+    background:var(--accent); color:var(--accent-ink);
+    font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:17px; letter-spacing:.02em; text-transform:uppercase;
+    border:none; cursor:pointer; margin-bottom:18px; box-shadow:var(--shadow);
+  }
+
+  .audit-card{
+    background:var(--surface); border:1px solid var(--line); border-radius:var(--radius);
+    padding:15px 16px; margin-bottom:11px; cursor:pointer; box-shadow:var(--shadow);
+  }
+  .audit-card:active{ transform:scale(0.99); }
+  .audit-top{ display:flex; justify-content:space-between; align-items:flex-start; gap:10px; }
+  .audit-chantier{ font-size:16.5px; font-weight:600; line-height:1.25; }
+  .audit-client{ font-size:13px; color:var(--ink-dim); margin-top:2px; }
+  .audit-meta{ display:flex; gap:12px; margin-top:10px; font-size:12px; color:var(--ink-faint); flex-wrap:wrap; }
+  .audit-meta span{ display:flex; align-items:center; gap:4px; }
+  .badges{ display:flex; gap:6px; flex:none; }
+  .badge{ font-family:'IBM Plex Mono',monospace; font-size:12px; font-weight:600; padding:4px 8px; border-radius:99px; white-space:nowrap; }
+  .badge.ok{ background:var(--ok-soft); color:var(--ok); }
+  .badge.warn{ background:var(--warn-soft); color:var(--warn); }
+  .badge.note{ background:var(--accent-soft); color:var(--accent-soft-ink); }
+
+  .empty{ text-align:center; padding:50px 20px; color:var(--ink-faint); }
+  .empty svg{ width:40px; height:40px; margin-bottom:10px; opacity:.6; }
+  .empty p{ font-size:14px; margin:0; }
+
+  /* ---------- Detail view ---------- */
+  .detail-header{ display:flex; align-items:center; gap:10px; margin-bottom:6px; }
+  .backbtn{ background:none; border:none; color:var(--accent); font-size:14px; font-weight:600; cursor:pointer; padding:6px 0; display:flex; align-items:center; gap:4px; }
+  .detail-section-title{ font-size:16px; margin:22px 0 8px; padding-top:14px; border-top:1px solid var(--line); }
+  .detail-section-title:first-of-type{ border-top:none; padding-top:0; margin-top:16px; }
+  .kv-row{ display:flex; justify-content:space-between; gap:14px; padding:7px 0; font-size:13.5px; border-top:1px solid var(--line); }
+  .kv-row:first-child{ border-top:none; }
+  .kv-row .k{ color:var(--ink-dim); }
+  .kv-row .v{ text-align:right; font-weight:500; }
+  .detail-comment{ margin-top:8px; font-size:13.5px; color:var(--ink-dim); background:var(--surface-2); border-radius:var(--radius-sm); padding:10px 12px; line-height:1.5; white-space:pre-wrap; }
+  .chip-status{ display:inline-flex; align-items:center; gap:5px; font-size:12.5px; font-weight:600; padding:3px 9px; border-radius:99px; }
+
+  .toast{
+    position:fixed; left:50%; transform:translateX(-50%); bottom:80px; z-index:40;
+    background:var(--ink); color:var(--bg); padding:12px 18px; border-radius:99px; font-size:13.5px; font-weight:500;
+    box-shadow:var(--shadow);
+    animation:toastin .2s ease;
+  }
+  @keyframes toastin{ from{ opacity:0; transform:translate(-50%,10px);} to{ opacity:1; transform:translate(-50%,0);} }
+
+  .modal-backdrop{ position:fixed; inset:0; z-index:60; background:rgba(20,18,14,0.45); display:flex; align-items:flex-end; justify-content:center; animation:fadein .15s ease; }
+  @media (min-width:560px){ .modal-backdrop{ align-items:center; } }
+  @keyframes fadein{ from{ opacity:0; } to{ opacity:1; } }
+  .modal-sheet{
+    background:var(--surface); border-radius:var(--radius) var(--radius) 0 0; box-shadow:var(--shadow);
+    width:100%; max-width:520px; max-height:82vh; display:flex; flex-direction:column; overflow:hidden;
+    animation:sheetup .18s ease;
+  }
+  @media (min-width:560px){ .modal-sheet{ border-radius:var(--radius); max-height:74vh; } }
+  @keyframes sheetup{ from{ transform:translateY(16px); opacity:0; } to{ transform:translateY(0); opacity:1; } }
+  .modal-head{ display:flex; align-items:center; justify-content:space-between; gap:10px; padding:14px 16px; border-bottom:1px solid var(--line); }
+  .modal-head h3{ font-family:'Barlow Condensed',sans-serif; font-size:19px; font-weight:700; letter-spacing:.2px; margin:0; }
+  .modal-close{ border:none; background:var(--surface-2); color:var(--ink-dim); width:30px; height:30px; border-radius:99px; font-size:16px; line-height:1; cursor:pointer; flex:none; }
+  .modal-body{ padding:12px 16px; overflow-y:auto; }
+  .modal-text{
+    width:100%; min-height:220px; resize:vertical; border:1px solid var(--line); border-radius:var(--radius-sm);
+    background:var(--surface-2); color:var(--ink); font-family:'IBM Plex Mono',monospace; font-size:12.5px; line-height:1.55;
+    padding:10px 11px; white-space:pre-wrap;
+  }
+  .modal-hint{ margin:8px 2px 0; font-size:12px; color:var(--ink-faint); }
+  .modal-foot{ display:flex; gap:8px; padding:12px 16px; border-top:1px solid var(--line); }
+
+  .visually-hidden{ position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0,0,0,0); }
+
+  /* ---------- Chip select (checkbox / radio option lists) ---------- */
+  .chipwrap{ display:flex; flex-wrap:wrap; gap:8px; }
+  .chip{
+    padding:9px 14px; border-radius:99px; border:1px solid var(--line-strong);
+    background:var(--surface-2); font-size:13.5px; font-weight:500; color:var(--ink-dim);
+    cursor:pointer; user-select:none; -webkit-tap-highlight-color:transparent; min-height:40px;
+    display:inline-flex; align-items:center; gap:6px; line-height:1.3;
+  }
+  .chip.sel{ background:var(--accent-soft); border-color:var(--accent); color:var(--accent-soft-ink); font-weight:600; }
+  .chip .tick{ width:14px; height:14px; flex:none; }
+
+  .conn-banner{ border-radius:var(--radius-sm); padding:11px 14px; font-size:12.5px; margin-bottom:14px; display:flex; gap:8px; align-items:center; line-height:1.4; }
+  .conn-banner.on{ background:var(--ok-soft); color:var(--ok); }
+  .conn-banner.off{ background:var(--warn-soft); color:var(--warn); }
+  .badge.pending{ background:var(--muted-chip-soft); color:var(--muted-chip); }
+
+  /* ---------- Chip stack (long-sentence options) ---------- */
+  .chipwrap.stack{ flex-direction:column; align-items:stretch; }
+  .chipwrap.stack .chip{ text-align:left; }
+
+  /* ---------- Home: form picker ---------- */
+  .home-title{ font-size:28px; margin-bottom:2px; }
+  .home-sub{ color:var(--ink-dim); font-size:14px; margin-bottom:20px; }
+  .form-tile{
+    display:flex; align-items:center; gap:14px;
+    background:var(--surface); border:1px solid var(--line); border-radius:var(--radius);
+    padding:15px 16px; margin-bottom:11px; cursor:pointer; box-shadow:var(--shadow);
+    -webkit-tap-highlight-color:transparent;
+  }
+  .form-tile:active{ transform:scale(0.99); }
+  .form-tile-emoji{
+    width:46px; height:46px; border-radius:12px; background:var(--accent-soft);
+    display:flex; align-items:center; justify-content:center; font-size:22px; flex:none;
+  }
+  .form-tile-text{ flex:1; min-width:0; }
+  .form-tile-name{ font-weight:600; font-size:15.5px; line-height:1.25; }
+  .form-tile-desc{ font-size:12.5px; color:var(--ink-dim); margin-top:2px; }
+  .form-tile-meta{ display:flex; gap:6px; flex:none; align-items:center; }
+  .form-tile-chevron{ color:var(--ink-faint); flex:none; }
+
+  .form-header-back{
+    display:flex; align-items:center; gap:6px; background:none; border:none; cursor:pointer;
+    color:var(--accent); font-size:13px; font-weight:600; padding:0 0 6px; -webkit-tap-highlight-color:transparent;
+  }
+</style>
+</head>
+<body>
+
+<div id="app"></div>
+
+<script>
+"use strict";
+
+/* ============================================================
+   Application 100% autonome, sans dépendance à Claude.
+   Chaque formulaire poste directement vers le Google Form d'origine
+   (endpoint public /formResponse) — les réponses apparaissent dans
+   l'onglet "Réponses" du formulaire concerné, exactement comme si
+   elles avaient été saisies depuis un navigateur.
+   ============================================================ */
+
+const ICONS = {
+  list: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>',
+  plus: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>',
+  empty: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6l3 4v12a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V7l3-4Z"/><path d="M9 12h6M9 16h4"/></svg>',
+  back: '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>',
+  tick: '<svg class="tick" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>',
+  chevron: '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>',
+  home: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg>',
+};
+
+const CNC = ['C', 'NC', 'SO'];
+const EPI_OPTS = ['Requis', 'Porté', 'SO'];
+const OUINON = ['Oui', 'Non'];
+const AE = ['A : Très bien','B : Bien','C : Insuffisant','D : Inacceptable','E : Sans objet'];
+const BON_MAUVAIS = ['Bon', 'Mauvais'];
+
+/* ============================================================
+   FORM 1 — Audit terrain (Révision 0 - 11/10/2023)
+   ============================================================ */
+const STEPS_AUDIT_TERRAIN = [
+  { id:'identification', kind:'fields', title:'Identification', eyebrow:'Étape 1',
+    help:'Informations générales de l’audit.',
+    fields:[
+      {key:'auditeurs', label:'Auditeur(s)', type:'text', entry:'entry.2062281755', required:true},
+      {key:'date_audit', label:'Audit réalisé le', type:'date', entry:'entry.1561106773', required:true},
+      {key:'chantier', label:'Chantier', type:'text', entry:'entry.1484586964', required:true},
+      {key:'client', label:'Client', type:'text', entry:'entry.1613376251', required:true},
+      {key:'responsable', label:'Nom du responsable sur site', type:'text', entry:'entry.1075830780'},
+      {key:'nature_travaux', label:'Nature des travaux', type:'text', entry:'entry.52980699'},
+      {key:'personnes_auditees', label:'Noms des personnes auditées', type:'textarea', entry:'entry.1218339787'},
+    ]
+  },
+  { id:'habilitations', kind:'grid', title:'Habilitations / Autorisations', eyebrow:'Étape 2', options:CNC, exclusive:true,
+    items:[
+      {key:'hab_accueil', label:'Accueil chantier', entry:'entry.552196749'},
+      {key:'hab_habilitations', label:'Habilitations requises', entry:'entry.609468447'},
+      {key:'hab_autorisation', label:'Autorisation d’accès / divers', entry:'entry.356013743'},
+      {key:'hab_permis', label:'Permis sécurité', entry:'entry.1441001693'},
+      {key:'hab_plan_prevention', label:'Plan de prévention / PPSPS', entry:'entry.568940231'},
+    ], commentKey:'hab_commentaires', commentEntry:'entry.832303164' },
+  { id:'proprete', kind:'grid', title:'Ordre / Propreté / Rangement', eyebrow:'Étape 3', options:CNC, exclusive:true,
+    items:[
+      {key:'proprete_poste', label:'Poste de travail (hygiène / rangement)', entry:'entry.635237235'},
+      {key:'proprete_locaux', label:'Locaux (hygiène / rangement)', entry:'entry.384495916'},
+    ], commentKey:'proprete_commentaires', commentEntry:'entry.1976610980' },
+  { id:'epi', kind:'grid', title:'Équipements de protection individuelle', eyebrow:'Étape 4', options:EPI_OPTS, exclusive:false,
+    items:[
+      {key:'epi_vetements', label:'Vêtements', entry:'entry.1036520703'},
+      {key:'epi_casque', label:'Casque', entry:'entry.1119187865'},
+      {key:'epi_chaussures', label:'Chaussures', entry:'entry.309165279'},
+      {key:'epi_lunettes', label:'Lunettes', entry:'entry.1297664235'},
+      {key:'epi_gants', label:'Gants', entry:'entry.128075421'},
+      {key:'epi_protection_auditive', label:'Protections auditives', entry:'entry.1023587785'},
+      {key:'epi_harnais', label:'Harnais', entry:'entry.619042891'},
+      {key:'epi_ari', label:'ARI', entry:'entry.1478216758'},
+      {key:'epi_autres', label:'Autres', entry:'entry.1586687450'},
+    ], commentKey:'epi_commentaires', commentEntry:'entry.720530625' },
+  { id:'culture', kind:'scale', title:'Évaluation de la culture SSE', eyebrow:'Étape 5',
+    items:[
+      {key:'culture_rigoureux', label:'Être rigoureux (je respecte les consignes SSE)', entry:'entry.1556604918'},
+      {key:'culture_prudent', label:'Être prudent (analyse de l’intervention, je comprends les consignes)', entry:'entry.735908075'},
+      {key:'culture_responsable', label:'Agir responsable (vigilance partagée)', entry:'entry.78169319'},
+      {key:'culture_force_proposition', label:'Être force de proposition (remontées d’information)', entry:'entry.1512637737'},
+    ], commentKey:'culture_commentaires', commentEntry:'entry.537310304' },
+  { id:'equipement', kind:'grid', title:'Équipement / Outillage — conformité du matériel', eyebrow:'Étape 6', options:CNC, exclusive:true,
+    items:[
+      {key:'equipement_bonne_utilisation', label:'Bonne utilisation', entry:'entry.372964545'},
+      {key:'equipement_controle_periodique', label:'Contrôle périodique', entry:'entry.869149188'},
+      {key:'equipement_etat', label:'État', entry:'entry.1616738066'},
+    ], commentKey:'equipement_commentaires', commentEntry:'entry.568884221' },
+  { id:'chimiques', kind:'grid', title:'Produits chimiques', eyebrow:'Étape 7', options:CNC, exclusive:true,
+    items:[
+      {key:'chimiques_fds', label:'Présence FDS', entry:'entry.155235866'},
+      {key:'chimiques_etiquetage', label:'Étiquetage', entry:'entry.34837214'},
+      {key:'chimiques_utilisation', label:'Bonne utilisation', entry:'entry.1424465696'},
+      {key:'chimiques_stockage', label:'Respect du stockage', entry:'entry.270390557'},
+    ], commentKey:'chimiques_commentaires', commentEntry:'entry.1451193365' },
+  { id:'environnement', kind:'grid', title:'Environnement', eyebrow:'Étape 8', options:CNC, exclusive:true,
+    items:[
+      {key:'environnement_respect', label:'Respect de l’environnement', entry:'entry.2025732185'},
+      {key:'environnement_dechets', label:'Déchets', entry:'entry.1104773194'},
+      {key:'environnement_dechets_dangereux', label:'Évacuation des déchets dangereux', entry:'entry.261093208'},
+    ], commentKey:'environnement_commentaires', commentEntry:'entry.1015215775' },
+  { id:'actions', kind:'fields', title:'Actions', eyebrow:'Étape 9',
+    fields:[
+      {key:'actions_a_reporter', label:'Actions à reporter dans le plan d’action', type:'radio-options', options:OUINON, entry:'entry.307765739'},
+      {key:'actions_plan', label:'Détail des actions à reporter', type:'textarea', entry:'entry.438463495'},
+    ]
+  },
+  { id:'review', kind:'review', title:'Récapitulatif', eyebrow:'Étape 10' },
+];
+
+/* ============================================================
+   FORM 2 — Remontée de situations dangereuses
+   ============================================================ */
+const STEPS_REMONTEE = [
+  { id:'identification', kind:'fields', title:'Identification', eyebrow:'Étape 1',
+    fields:[
+      {key:'nom_prenom', label:'Nom et Prénom', type:'text', entry:'entry.1484586964', required:true},
+      {key:'fait_le', label:'Fait le', type:'date', entry:'entry.1561106773', required:true},
+      {key:'lieu', label:'Lieu', type:'text', entry:'entry.214681496', required:true},
+      {key:'affaire', label:'Nom de l’affaire', type:'text', entry:'entry.1368597710'},
+      {key:'personnes_concernees', label:'Nom des personnes concernées', type:'textarea', entry:'entry.1934661983'},
+    ]
+  },
+  { id:'evenement', kind:'fields', title:'La situation dangereuse', eyebrow:'Étape 2',
+    fields:[
+      {key:'type', label:'Type', type:'radio-options', options:['Sécurité','Santé','Environnement','Autre'], entry:'entry.638256093'},
+      {key:'description', label:'Description détaillée', type:'textarea', entry:'entry.1272027301'},
+      {key:'gravite', label:'Gravité de l’évènement', type:'scale-inline', entry:'entry.2133655917', required:true},
+      {key:'probabilite', label:'Probabilité de l’évènement', type:'scale-inline', entry:'entry.208334913', required:true},
+      {key:'action_immediate', label:'Action(s) immédiate(s)', type:'textarea', entry:'entry.1095865334'},
+      {key:'actions_a_reporter', label:'Actions à reporter dans le plan d’actions', type:'radio-options', options:OUINON, entry:'entry.827017756'},
+      {key:'detail_actions', label:'Détail des actions à reporter', type:'textarea', entry:'entry.1946863944'},
+    ]
+  },
+  { id:'review', kind:'review', title:'Récapitulatif', eyebrow:'Étape 3' },
+];
+
+/* ============================================================
+   FORM 3 — Audit véhicule
+   ============================================================ */
+const STEPS_VEHICULE = [
+  { id:'identification', kind:'fields', title:'Identification', eyebrow:'Étape 1',
+    fields:[
+      {key:'date_audit', label:'Audit réalisé le', type:'date', entry:'entry.1561106773', required:true},
+      {key:'immatriculation', label:'N° d’immatriculation', type:'text', entry:'entry.1484586964', required:true},
+      {key:'designation', label:'Désignation du véhicule', type:'text', entry:'entry.1613376251', required:true},
+      {key:'kilometrage', label:'Kilométrage', type:'text', entry:'entry.1209435211', required:true},
+      {key:'auditeurs', label:'Auditeur(s)', type:'text', entry:'entry.2062281755', required:true},
+      {key:'responsable', label:'Nom du responsable du véhicule', type:'text', entry:'entry.1075830780'},
+    ]
+  },
+  { id:'exterieur', kind:'grid', title:'Extérieur du véhicule', eyebrow:'Étape 2', options:BON_MAUVAIS, exclusive:true,
+    items:[
+      {key:'ext_general', label:'État général extérieur', entry:'entry.552196749'},
+      {key:'ext_pneus', label:'Pneus', entry:'entry.609468447'},
+      {key:'ext_vignette', label:'Vignette', entry:'entry.356013743'},
+      {key:'ext_essuie_glaces', label:'Essuie-glaces', entry:'entry.1487095291'},
+      {key:'ext_niveaux', label:'Niveaux', entry:'entry.1001521193'},
+      {key:'ext_feux', label:'Feux de signalisation', entry:'entry.138485986'},
+      {key:'ext_retroviseurs', label:'Rétroviseurs', entry:'entry.1187513486'},
+      {key:'ext_proprete', label:'Propreté', entry:'entry.661414475'},
+    ], commentKey:'ext_commentaires', commentEntry:'entry.832303164' },
+  { id:'interieur', kind:'grid', title:'Intérieur du véhicule', eyebrow:'Étape 3', options:BON_MAUVAIS, exclusive:true,
+    items:[
+      {key:'int_general', label:'État général intérieur', entry:'entry.635237235'},
+      {key:'int_rangement', label:'Rangement', entry:'entry.384495916'},
+      {key:'int_proprete', label:'Propreté', entry:'entry.54724233'},
+      {key:'int_gilet_triangle', label:'Gilet fluo — triangle de signalisation', entry:'entry.660846254'},
+      {key:'int_assurance', label:'Assurance — carte grise — manuel', entry:'entry.1852275475'},
+      {key:'int_trousse', label:'Trousse de secours', entry:'entry.1926646934'},
+      {key:'int_extincteur', label:'Extincteur', entry:'entry.2080408381'},
+    ], commentKey:'int_commentaires', commentEntry:'entry.1976610980' },
+  { id:'actions', kind:'fields', title:'Actions', eyebrow:'Étape 4',
+    fields:[
+      {key:'actions_a_reporter', label:'Actions à reporter dans le plan d’actions', type:'radio-options', options:OUINON, entry:'entry.307765739'},
+      {key:'detail_actions', label:'Détail des actions à reporter', type:'textarea', entry:'entry.438463495'},
+    ]
+  },
+  { id:'review', kind:'review', title:'Récapitulatif', eyebrow:'Étape 5' },
+];
+
+/* ============================================================
+   FORM 4 — Mise au travail / Pré job briefing (Révision A - 27/10/2025)
+   ============================================================ */
+const STEPS_PREJOB = [
+  { id:'identification', kind:'fields', title:'Identification', eyebrow:'Étape 1',
+    fields:[
+      {key:'redacteur', label:'Rédacteur', type:'text', entry:'entry.2062281755', required:true},
+      {key:'formalise_le', label:'Formalisé le', type:'date', entry:'entry.1561106773', required:true},
+      {key:'chantier', label:'Chantier', type:'text', entry:'entry.1484586964', required:true},
+      {key:'client', label:'Client', type:'text', entry:'entry.1613376251', required:true},
+    ]
+  },
+  { id:'briefing', kind:'fields', title:'Vérifications avant intervention', eyebrow:'Étape 2',
+    fields:[
+      {key:'modes_operatoires', label:'Les modes opératoires et/ou analyses de risques sont disponibles sur le lieu d’intervention ?', type:'radio-options', options:OUINON, entry:'entry.552196749', required:true},
+      {key:'risques_identifies', label:'Les risques de l’intervention et les parades associées ont tous été identifiés ?', type:'radio-options', options:OUINON, entry:'entry.635237235', required:true},
+      {key:'conditions_travail', label:'Les conditions de travail (risques, moyens techniques et humains,...) sont conformes à ce qui a été prescrit ?', type:'radio-options', options:OUINON, entry:'entry.1036520703', required:true},
+      {key:'points_surveillance', label:'Les points particuliers de surveillance sont connus ?', type:'radio-options', options:['Oui','Non','Non concerné'], entry:'entry.1509019824', required:true},
+      {key:'roles_responsabilites', label:'Les rôles et responsabilités de chacun sont connus ?', type:'radio-options', options:OUINON, entry:'entry.1817095001', required:true},
+      {key:'rex_pris_compte', label:'Si un REX a été formalisé sur ce type d’intervention, il a été pris en compte avant de commencer les travaux ?', type:'radio-options', options:['Oui','Non','Non concerné'], entry:'entry.1628579450', required:true},
+      {key:'observations', label:'Observations / Actions d’amélioration', type:'textarea', entry:'entry.485787779'},
+    ]
+  },
+  { id:'review', kind:'review', title:'Récapitulatif', eyebrow:'Étape 3' },
+];
+
+/* ============================================================
+   FORMS REGISTRY
+   ============================================================ */
+const FORMS = [
+  { id:'audit-terrain', name:'Audit terrain', desc:'Audit SSE sur chantier', emoji:'🦺',
+    actionUrl:'https://docs.google.com/forms/d/e/1FAIpQLSeYrcDffYtNYAPO2UF0m-tpcpsXvZDnuG0-X_KAcQ6EwXDD2g/formResponse',
+    steps: STEPS_AUDIT_TERRAIN },
+  { id:'remontee', name:'Situation dangereuse', desc:'Signaler une situation dangereuse', emoji:'⚠️',
+    actionUrl:'https://docs.google.com/forms/d/e/1FAIpQLScSTQUoR2zd9B3R6AQogonwwpw70eiyrYmAKL2HjqsKaLl0KQ/formResponse',
+    steps: STEPS_REMONTEE },
+  { id:'pre-job', name:'Pré job briefing', desc:'Mise au travail', emoji:'🧰',
+    actionUrl:'https://docs.google.com/forms/d/e/1FAIpQLSeArzsjMt3Dc5siF9roVimLSr5qP1Q5cCL2QDh4AYR1KbZUBA/formResponse',
+    steps: STEPS_PREJOB },
+  { id:'audit-vehicule', name:'Audit véhicule', desc:'Contrôle du véhicule', emoji:'🚐',
+    actionUrl:'https://docs.google.com/forms/d/e/1FAIpQLSeKZ1Aj_A6lCMR5NzbexVx8wHf0NCxio0G--VndqNIW51MfWQ/formResponse',
+    steps: STEPS_VEHICULE },
+];
+function getForm(id){ return FORMS.find(f => f.id === id); }
+
+/* ============================================================
+   STORAGE (namespaced per formulaire)
+   ============================================================ */
+function safeParse(raw, fallback){ try{ const v = JSON.parse(raw); return v==null?fallback:v; }catch(e){ return fallback; } }
+function draftKey(id){ return 'arteic_draft_'+id; }
+function stepKey(id){ return 'arteic_step_'+id; }
+function historyKey(id){ return 'arteic_history_'+id; }
+
+function loadDraft(id){ try{ return safeParse(localStorage.getItem(draftKey(id)), {}); }catch(e){ return {}; } }
+function saveDraft(){ try{ localStorage.setItem(draftKey(appState.formId), JSON.stringify(state)); }catch(e){} }
+function clearDraft(id){ try{ localStorage.removeItem(draftKey(id)); localStorage.removeItem(stepKey(id)); }catch(e){} }
+function loadStepIndex(id){ try{ const v = parseInt(localStorage.getItem(stepKey(id)),10); return isNaN(v)?0:v; }catch(e){ return 0; } }
+function saveStepIndex(){ try{ localStorage.setItem(stepKey(appState.formId), String(appState.stepIndex)); }catch(e){} }
+function loadHistory(id){ try{ return safeParse(localStorage.getItem(historyKey(id)), []); }catch(e){ return []; } }
+function saveHistory(id, list){ try{ localStorage.setItem(historyKey(id), JSON.stringify(list)); }catch(e){} }
+
+function uid(){ return 'a' + Date.now().toString(36) + Math.random().toString(36).slice(2,8); }
+function todayISO(){ const d = new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+
+/* ============================================================
+   APP STATE
+   ============================================================ */
+let appState = { formId:null, tab:'list', stepIndex:0, detailId:null, toast:null, textModal:null };
+let state = {};
+
+function currentForm(){ return appState.formId ? getForm(appState.formId) : null; }
+function currentSteps(){ const f = currentForm(); return f ? f.steps : []; }
+
+window.addEventListener('online', () => { retryPendingAll(); render(); });
+window.addEventListener('offline', () => render());
+
+/* ============================================================
+   FIELD / SELECTION HANDLERS  (no full re-render on text input)
+   ============================================================ */
+function setField(key, value){ state[key] = value; saveDraft(); }
+function autoGrow(el){ el.style.height='auto'; el.style.height = (el.scrollHeight+2)+'px'; }
+function onTextInput(el, key){ setField(key, el.value); if(el.tagName === 'TEXTAREA') autoGrow(el); }
+
+function selectExclusive(key, code){ state[key] = (state[key] === code) ? undefined : code; saveDraft(); render(); }
+function selectCheck(itemKey, code){ const k = itemKey + '__' + code; state[k] = !state[k]; saveDraft(); render(); }
+function selectScale(key, num){ state[key] = (state[key] === num) ? undefined : num; saveDraft(); render(); }
+function toggleCheckboxOption(fieldKey, option){
+  const arr = Array.isArray(state[fieldKey]) ? state[fieldKey].slice() : [];
+  const i = arr.indexOf(option);
+  if(i >= 0) arr.splice(i,1); else arr.push(option);
+  state[fieldKey] = arr; saveDraft(); render();
+}
+function selectRadioOption(fieldKey, option){ state[fieldKey] = (state[fieldKey] === option) ? undefined : option; saveDraft(); render(); }
+
+/* ============================================================
+   NAVIGATION
+   ============================================================ */
+function goHome(){ appState.formId = null; appState.tab = 'list'; appState.detailId = null; window.scrollTo(0,0); render(); }
+function selectForm(id){
+  appState.formId = id;
+  appState.tab = 'list';
+  appState.stepIndex = loadStepIndex(id);
+  appState.detailId = null;
+  state = loadDraft(id);
+  if(!state.date_audit && !state.date_rex && !state.fait_le && !state.formalise_le){ /* seed today where relevant */ }
+  seedDefaults();
+  window.scrollTo(0,0); render();
+}
+function seedDefaults(){
+  const f = currentForm(); if(!f) return;
+  const dateField = f.steps.some(s=>s.kind==='fields'&&s.fields.some(x=>x.key==='date_audit')) ? 'date_audit'
+    : f.steps.some(s=>s.kind==='fields'&&s.fields.some(x=>x.key==='date_rex')) ? 'date_rex'
+    : f.steps.some(s=>s.kind==='fields'&&s.fields.some(x=>x.key==='fait_le')) ? 'fait_le'
+    : f.steps.some(s=>s.kind==='fields'&&s.fields.some(x=>x.key==='formalise_le')) ? 'formalise_le' : null;
+  if(dateField && !state[dateField]) state[dateField] = todayISO();
+}
+function goTab(tab){
+  appState.tab = tab; appState.detailId = null;
+  if(tab === 'form' && appState.stepIndex == null) appState.stepIndex = 0;
+  window.scrollTo(0,0); render();
+}
+function startNewEntry(){
+  if(hasAnyAnswer() && !confirm('Une saisie est en cours. Voulez-vous l’abandonner et en démarrer une nouvelle ?')) return;
+  state = {};
+  seedDefaults();
+  appState.stepIndex = 0;
+  clearDraft(appState.formId); saveDraft();
+  goTab('form');
+}
+function hasAnyAnswer(){
+  return Object.keys(state).some(k => {
+    if(k.endsWith('date_audit') || k==='date_audit' || k==='date_rex' || k==='fait_le' || k==='formalise_le') return false;
+    const v = state[k];
+    if(Array.isArray(v)) return v.length > 0;
+    return v !== undefined && v !== '' && v !== false;
+  });
+}
+function goStep(delta){
+  const steps = currentSteps();
+  const next = appState.stepIndex + delta;
+  if(next < 0 || next >= steps.length) return;
+  appState.stepIndex = next; saveStepIndex(); window.scrollTo(0,0); render();
+}
+function jumpToStep(idx){ appState.stepIndex = idx; saveStepIndex(); appState.tab = 'form'; window.scrollTo(0,0); render(); }
+function openDetail(id){ appState.detailId = id; appState.tab = 'detail'; window.scrollTo(0,0); render(); }
+function closeDetail(){ appState.detailId = null; appState.tab = 'list'; render(); }
+function showToast(msg){ appState.toast = msg; render(); setTimeout(() => { appState.toast = null; render(); }, 2600); }
+
+/* ============================================================
+   VALIDATION & STATS  (generic across form shapes)
+   ============================================================ */
+const BAD_VALUES = new Set(['NC','Mauvais','C : Insuffisant','D : Inacceptable']);
+const NEUTRAL_VALUES = new Set(['SO','E : Sans objet']);
+
+function requiredMissing(){
+  const missing = [];
+  currentSteps().forEach((step, stepIndex) => {
+    if(step.kind === 'fields'){
+      step.fields.forEach(f => {
+        if(!f.required) return;
+        const v = state[f.key];
+        let empty;
+        if(f.type === 'checkbox-options') empty = !Array.isArray(v) || v.length===0;
+        else if(f.type === 'scale-inline') empty = v===undefined;
+        else empty = !String(v||'').trim();
+        if(empty) missing.push({ stepIndex, label:f.label });
+      });
+    } else if(step.kind === 'rated-list'){
+      step.items.forEach(item => { if(state[item.key]===undefined) missing.push({ stepIndex, label:item.label }); });
+    } else if(step.kind === 'mixed-rated'){
+      step.rated.items.forEach(item => { if(state[item.key]===undefined) missing.push({ stepIndex, label:item.label }); });
+    }
+  });
+  return missing;
+}
+
+function collectRatableSections(){
+  const out = [];
+  currentSteps().forEach((step, stepIndex) => {
+    if(step.kind === 'grid' && step.exclusive) out.push({ stepIndex, sectionTitle: step.title, items: step.items });
+    else if(step.kind === 'mixed' && step.grid.exclusive) out.push({ stepIndex, sectionTitle: step.grid.title, items: step.grid.items });
+    else if(step.kind === 'rated-list') out.push({ stepIndex, sectionTitle: step.title, items: step.items });
+    else if(step.kind === 'mixed-rated') out.push({ stepIndex, sectionTitle: step.title, items: step.rated.items });
+  });
+  return out;
+}
+function computeStats(){
+  let good=0, bad=0, neutral=0; const badItems = [];
+  collectRatableSections().forEach(section => {
+    section.items.forEach(item => {
+      const v = state[item.key];
+      if(v === undefined) return;
+      if(BAD_VALUES.has(v)){ bad++; badItems.push({ section: section.sectionTitle, label: item.label, stepIndex: section.stepIndex }); }
+      else if(NEUTRAL_VALUES.has(v)) neutral++;
+      else good++;
+    });
+  });
+  const rate = (good+bad) > 0 ? Math.round((good/(good+bad))*100) : null;
+  return { good, bad, neutral, rate, badItems };
+}
+function computeEpiGaps(){
+  if(appState.formId !== 'audit-terrain') return [];
+  const step = currentSteps().find(s => s.id === 'epi');
+  if(!step) return [];
+  const gaps = [];
+  step.items.forEach(item => {
+    const requis = !!state[item.key+'__Requis'];
+    const porte = !!state[item.key+'__Porté'];
+    if(requis && !porte) gaps.push(item.label);
+  });
+  return gaps;
+}
+function countAnsweredSteps(){
+  let done = 0;
+  currentSteps().forEach(step => { if(step.kind!=='review' && stepHasAnyAnswer(step)) done++; });
+  return done;
+}
+function stepHasAnyAnswer(step){
+  if(step.kind === 'fields') return step.fields.some(f => f.type==='note' ? false : (Array.isArray(state[f.key]) ? state[f.key].length : (f.type==='scale-inline' ? state[f.key]!==undefined : String(state[f.key]||'').trim())));
+  if(step.kind === 'grid') return step.items.some(item => step.exclusive ? state[item.key]!==undefined : step.options.some(o=>state[item.key+'__'+o]));
+  if(step.kind === 'mixed'){
+    const fieldsAnswered = step.fields.some(f => Array.isArray(state[f.key]) ? state[f.key].length : String(state[f.key]||'').trim());
+    const gridAnswered = step.grid.items.some(item => state[item.key]!==undefined);
+    return fieldsAnswered || gridAnswered || String(state[step.commentKey]||'').trim();
+  }
+  if(step.kind === 'scale') return step.items.some(item => state[item.key]!==undefined);
+  if(step.kind === 'scale-single') return state[step.key]!==undefined;
+  if(step.kind === 'info-scale') return state[step.scaleKey]!==undefined;
+  if(step.kind === 'rated-list') return step.items.some(item => state[item.key]!==undefined);
+  if(step.kind === 'mixed-rated') return step.rated.items.some(item => state[item.key]!==undefined) || step.fields.some(f => String(state[f.key]||'').trim());
+  return false;
+}
+
+/* ============================================================
+   SUBMISSION — POST directly into the relevant Google Form
+   ============================================================ */
+function buildFormParams(steps, data){
+  const p = new URLSearchParams();
+
+  function addField(f){
+    if(f.type === 'note') return;
+    const v = data[f.key];
+    if(v === undefined || v === '' || v === null) return;
+    if(f.type === 'date'){
+      const parts = String(v).split('-');
+      if(parts.length === 3){
+        p.append(f.entry+'_year', parts[0]);
+        p.append(f.entry+'_month', String(parseInt(parts[1],10)));
+        p.append(f.entry+'_day', String(parseInt(parts[2],10)));
+      }
+    } else if(f.type === 'checkbox-options'){
+      (Array.isArray(v) ? v : []).forEach(opt => p.append(f.entry, opt));
+    } else {
+      p.append(f.entry, v);
+    }
+  }
+  function addRatedItem(item){
+    if(data[item.key] !== undefined) p.append(item.entry, data[item.key]);
+    if(item.commentEntry && data[item.commentKey]) p.append(item.commentEntry, data[item.commentKey]);
+  }
+
+  steps.forEach(step => {
+    if(step.kind === 'fields'){
+      step.fields.forEach(addField);
+    } else if(step.kind === 'grid'){
+      step.items.forEach(item => {
+        if(step.exclusive){ if(data[item.key] !== undefined) p.append(item.entry, data[item.key]); }
+        else { step.options.forEach(o => { if(data[item.key+'__'+o]) p.append(item.entry, o); }); }
+      });
+      if(step.commentEntry && data[step.commentKey]) p.append(step.commentEntry, data[step.commentKey]);
+    } else if(step.kind === 'mixed'){
+      step.fields.forEach(addField);
+      step.grid.items.forEach(item => { if(data[item.key] !== undefined) p.append(item.entry, data[item.key]); });
+      if(step.commentEntry && data[step.commentKey]) p.append(step.commentEntry, data[step.commentKey]);
+    } else if(step.kind === 'scale'){
+      step.items.forEach(item => { if(data[item.key] !== undefined) p.append(item.entry, String(data[item.key])); });
+      if(step.commentEntry && data[step.commentKey]) p.append(step.commentEntry, data[step.commentKey]);
+    } else if(step.kind === 'scale-single'){
+      if(data[step.key] !== undefined) p.append(step.entry, String(data[step.key]));
+      if(step.commentEntry && data[step.commentKey]) p.append(step.commentEntry, data[step.commentKey]);
+    } else if(step.kind === 'info-scale'){
+      if(data[step.scaleKey] !== undefined) p.append(step.scaleEntry, String(data[step.scaleKey]));
+    } else if(step.kind === 'rated-list'){
+      step.items.forEach(addRatedItem);
+    } else if(step.kind === 'mixed-rated'){
+      step.rated.items.forEach(addRatedItem);
+      step.fields.forEach(addField);
+    }
+  });
+
+  return p;
+}
+
+async function postToGoogleForm(actionUrl, steps, data){
+  const params = buildFormParams(steps, data);
+  await fetch(actionUrl, {
+    method: 'POST', mode: 'no-cors',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: params.toString(),
+  });
+}
+
+async function submitEntry(){
+  const missing = requiredMissing();
+  if(missing.length){ render(); return; }
+
+  const form = currentForm();
+  const record = Object.assign({}, state, { _id: uid(), submittedAt: new Date().toISOString(), _status: 'sending' });
+
+  const history = loadHistory(form.id);
+  history.unshift(record);
+  saveHistory(form.id, history);
+
+  state = {}; seedDefaults();
+  appState.stepIndex = 0;
+  clearDraft(form.id);
+  goTab('list');
+
+  try{
+    await postToGoogleForm(form.actionUrl, form.steps, record);
+    record._status = 'sent';
+    showToast('Envoyé au Google Form ✓');
+  }catch(e){
+    record._status = 'pending';
+    showToast('Hors connexion — sera renvoyé automatiquement');
+  }
+  const h2 = loadHistory(form.id);
+  const idx = h2.findIndex(a => a._id === record._id);
+  if(idx >= 0){ h2[idx] = record; saveHistory(form.id, h2); }
+  render();
+}
+
+let retrying = false;
+async function retryPendingAll(){
+  if(retrying || !navigator.onLine) return;
+  retrying = true;
+  let anyChanged = false;
+  for(const form of FORMS){
+    const history = loadHistory(form.id);
+    let changed = false;
+    for(const record of history){
+      if(record._status !== 'pending') continue;
+      try{ await postToGoogleForm(form.actionUrl, form.steps, record); record._status = 'sent'; changed = true; anyChanged = true; }
+      catch(e){ /* still offline */ }
+    }
+    if(changed) saveHistory(form.id, history);
+  }
+  if(anyChanged) showToast('Envoi(s) en attente transmis ✓');
+  retrying = false;
+}
+async function resendOne(id){
+  const form = currentForm();
+  const history = loadHistory(form.id);
+  const record = history.find(a => a._id === id);
+  if(!record) return;
+  try{ await postToGoogleForm(form.actionUrl, form.steps, record); record._status = 'sent'; saveHistory(form.id, history); showToast('Envoyé ✓'); render(); }
+  catch(e){ showToast('Toujours hors connexion'); }
+}
+
+/* ============================================================
+   TEXT EXPORT
+   ============================================================ */
+const LABEL_KEY_PRIORITY = ['chantier','lieu','designation','immatriculation','nom_prenom','animateur','redacteur'];
+function entryLabel(steps, data){
+  for(const key of LABEL_KEY_PRIORITY){
+    if(data[key]) return data[key];
+  }
+  for(const step of steps){
+    if(step.kind==='fields'){
+      const f = step.fields.find(x => x.type==='text' && data[x.key]);
+      if(f) return data[f.key];
+    }
+  }
+  return null;
+}
+function recordToText(form, data){
+  const lines = [];
+  lines.push((form.name).toUpperCase());
+  lines.push('');
+  form.steps.forEach(step => {
+    if(step.kind === 'review') return;
+    let block = [];
+    if(step.kind === 'fields'){
+      step.fields.forEach(f => {
+        if(f.type==='note') return;
+        const v = data[f.key];
+        if(Array.isArray(v) && v.length) block.push(f.label+' : '+v.join(', '));
+        else if(v) block.push(f.label+' : '+v);
+      });
+    } else if(step.kind === 'grid'){
+      step.items.forEach(item => {
+        if(step.exclusive){ const v = data[item.key]; if(v) block.push('  '+item.label+' : '+v); }
+        else { const sel = step.options.filter(o=>data[item.key+'__'+o]); if(sel.length) block.push('  '+item.label+' : '+sel.join(' + ')); }
+      });
+      if(data[step.commentKey]) block.push('Commentaires : '+data[step.commentKey]);
+    } else if(step.kind === 'mixed'){
+      step.fields.forEach(f=>{ const v=data[f.key]; if(Array.isArray(v)&&v.length) block.push(f.label+' : '+v.join(', ')); });
+      step.grid.items.forEach(item => { const v=data[item.key]; if(v) block.push('  '+item.label+' : '+v); });
+      if(data[step.commentKey]) block.push('Commentaires : '+data[step.commentKey]);
+    } else if(step.kind === 'scale'){
+      step.items.forEach(item => { if(data[item.key]) block.push('  '+item.label+' : '+data[item.key]+'/5'); });
+      if(data[step.commentKey]) block.push('Commentaires : '+data[step.commentKey]);
+    } else if(step.kind === 'scale-single'){
+      if(data[step.key]) block.push(step.label+' : '+data[step.key]+'/5');
+      if(data[step.commentKey]) block.push('Commentaires : '+data[step.commentKey]);
+    } else if(step.kind === 'info-scale'){
+      if(data[step.scaleKey]) block.push(step.scaleLabel+' : '+data[step.scaleKey]+'/5');
+    } else if(step.kind === 'rated-list'){
+      step.items.forEach(item => { if(data[item.key]){ block.push('  '+item.label+' : '+data[item.key]); if(data[item.commentKey]) block.push('    → '+data[item.commentKey]); } });
+    } else if(step.kind === 'mixed-rated'){
+      step.rated.items.forEach(item => { if(data[item.key]){ block.push('  '+item.label+' : '+data[item.key]); if(data[item.commentKey]) block.push('    → '+data[item.commentKey]); } });
+      step.fields.forEach(f => { if(data[f.key]) block.push(f.label+' : '+data[f.key]); });
+    }
+    if(block.length){ lines.push('--- '+step.title.toUpperCase()+' ---'); lines.push(...block); lines.push(''); }
+  });
+  return lines.join('\n');
+}
+function exportRecord(data){
+  const form = currentForm();
+  const text = recordToText(form, data);
+  const label = entryLabel(form.steps, data) || form.name;
+  const filename = (form.id+'_'+label).toString().replace(/[^a-z0-9]+/gi,'_').toLowerCase() + '_' + (data.submittedAt||'').slice(0,10) + '.txt';
+  appState.textModal = { text, filename };
+  render();
+}
+function closeExportModal(){ appState.textModal = null; render(); }
+function copyExportText(){
+  const tm = appState.textModal;
+  if(!tm) return;
+  const ta = document.getElementById('export-text-area');
+  const doFallback = () => { if(ta){ ta.focus(); ta.select(); try{ document.execCommand('copy'); showToast('Copié ✓'); }catch(e){ showToast('Sélectionnez le texte puis copiez'); } } };
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(tm.text).then(() => showToast('Copié ✓')).catch(doFallback);
+  } else {
+    doFallback();
+  }
+}
+function renderExportModal(){
+  const tm = appState.textModal;
+  if(!tm) return '';
+  return '<div class="modal-backdrop" onclick="if(event.target===this) closeExportModal()">'
+    + '<div class="modal-sheet">'
+      + '<div class="modal-head"><h3>Détail à copier</h3><button type="button" class="modal-close" onclick="closeExportModal()" aria-label="Fermer">✕</button></div>'
+      + '<div class="modal-body">'
+        + '<textarea id="export-text-area" class="modal-text" readonly onclick="this.focus();this.select();">'+esc(tm.text)+'</textarea>'
+        + '<p class="modal-hint">Sur iPhone : appuyez dans le texte, sélectionnez tout, puis copiez ou partagez.</p>'
+      + '</div>'
+      + '<div class="modal-foot">'
+        + '<button type="button" class="btn btn-ghost btn-block" onclick="closeExportModal()">Fermer</button>'
+        + '<button type="button" class="btn btn-primary btn-block" onclick="copyExportText()">Copier</button>'
+      + '</div>'
+    + '</div>'
+  + '</div>';
+}
+
+/* ============================================================
+   RENDER HELPERS
+   ============================================================ */
+function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function fmtDate(iso){ if(!iso) return '—'; const parts = String(iso).split('-'); if(parts.length===3) return parts[2]+'/'+parts[1]+'/'+parts[0]; return iso; }
+function fmtDateTime(iso){ if(!iso) return ''; const d = new Date(iso); if(isNaN(d)) return ''; return d.toLocaleDateString('fr-FR') + ' à ' + d.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'}); }
+
+function renderChipSelect(f){
+  const val = f.type === 'checkbox-options' ? (Array.isArray(state[f.key]) ? state[f.key] : []) : state[f.key];
+  const chips = f.options.map(opt => {
+    const selected = f.type === 'checkbox-options' ? val.includes(opt) : val === opt;
+    const handler = f.type === 'checkbox-options'
+      ? "toggleCheckboxOption('"+f.key+"', "+JSON.stringify(opt)+")"
+      : "selectRadioOption('"+f.key+"', "+JSON.stringify(opt)+")";
+    return '<div class="chip'+(selected?' sel':'')+'" role="button" tabindex="0" onclick="'+handler.replace(/"/g,'&quot;')+'">'+(selected?ICONS.tick:'')+esc(opt)+'</div>';
+  }).join('');
+  return '<div class="chipwrap'+(f.stack?' stack':'')+'">'+chips+'</div>';
+}
+function renderScaleInline(f){
+  const val = state[f.key];
+  const pills = [1,2,3,4,5].map(n => '<div class="scale-pill'+(val===n?' sel':'')+'" role="button" tabindex="0" onclick="selectScale(\''+f.key+'\','+n+')">'+n+'</div>').join('');
+  return '<div class="scale-row">'+pills+'</div><div class="scale-caption"><span>1 · Faible</span><span>5 · Élevé</span></div>';
+}
+
+function renderField(f){
+  const req = f.required ? '<span class="req">*</span>' : '';
+  if(f.type === 'note'){
+    return '<div class="field" style="color:var(--ink-dim);font-size:13.5px;font-style:italic;">'+esc(f.label)+'</div>';
+  }
+  if(f.type === 'checkbox-options' || f.type === 'radio-options'){
+    return '<div class="field"><label>'+esc(f.label)+req+'</label>'+renderChipSelect(f)+'</div>';
+  }
+  if(f.type === 'scale-inline'){
+    return '<div class="field"><label>'+esc(f.label)+req+'</label>'+renderScaleInline(f)+'</div>';
+  }
+  const val = state[f.key]!==undefined ? state[f.key] : '';
+  if(f.type === 'textarea'){
+    return '<div class="field"><label>'+esc(f.label)+req+'</label>'
+      + '<textarea rows="1" oninput="onTextInput(this,\''+f.key+'\')" placeholder="Réponse longue">'+esc(val)+'</textarea></div>';
+  }
+  const type = f.type === 'date' ? 'date' : 'text';
+  return '<div class="field"><label>'+esc(f.label)+req+'</label>'
+    + '<input type="'+type+'" value="'+esc(val)+'" oninput="onTextInput(this,\''+f.key+'\')" placeholder="'+(type==='text'?'Réponse courte':'')+'"></div>';
+}
+
+function pillClass(code, selected){
+  if(!selected) return 'pill';
+  if(code==='C'||code==='Bon') return 'pill sel-c';
+  if(code==='NC'||code==='Mauvais') return 'pill sel-nc';
+  return 'pill sel-so';
+}
+function renderGridItem(item, options, exclusive){
+  const pills = options.map(o => {
+    const selected = exclusive ? state[item.key] === o : !!state[item.key+'__'+o];
+    const cls = exclusive ? pillClass(o, selected) : ('pill' + (selected ? ' sel-accent' : ''));
+    const handler = exclusive ? "selectExclusive('"+item.key+"','"+o+"')" : "selectCheck('"+item.key+"','"+o+"')";
+    return '<div class="'+cls+'" role="button" tabindex="0" onclick="'+handler+'">'+esc(o)+'</div>';
+  }).join('');
+  return '<div class="item-row"><div class="item-label">'+esc(item.label)+'</div><div class="pill-group">'+pills+'</div></div>';
+}
+function renderGridBody(step, options, exclusive, items, commentKey, title){
+  const legend = exclusive ? '' : '<div class="legend"><span>Une ou plusieurs cases par ligne</span></div>';
+  const rows = items.map(item => renderGridItem(item, options, exclusive)).join('');
+  const titleHtml = title ? '<h4 style="font-family:\'Barlow Condensed\',sans-serif;font-size:15px;text-transform:uppercase;letter-spacing:.03em;color:var(--accent);margin:0 0 8px;">'+esc(title)+'</h4>' : '';
+  const comment = commentKey ? renderField({key:commentKey, label:'Commentaires', type:'textarea'}) : '';
+  return titleHtml + legend + rows + (comment ? '<div style="margin-top:14px;">'+comment+'</div>' : '');
+}
+function renderScaleRow(item){
+  const val = state[item.key];
+  const pills = [1,2,3,4,5].map(n => '<div class="scale-pill'+(val===n?' sel':'')+'" role="button" tabindex="0" onclick="selectScale(\''+item.key+'\','+n+')">'+n+'</div>').join('');
+  return '<div class="item-row"><div class="item-label">'+esc(item.label)+'</div><div class="scale-row">'+pills+'</div></div>';
+}
+function ratedPillClass(code, selected){
+  if(!selected) return 'chip';
+  if(code.startsWith('A')||code.startsWith('B')) return 'chip sel';
+  if(code.startsWith('C')||code.startsWith('D')) return 'chip sel-nc-chip';
+  return 'chip sel';
+}
+function renderRatedItem(item, options){
+  const val = state[item.key];
+  const chips = options.map(o => {
+    const selected = val === o;
+    let style = '';
+    if(selected){
+      if(o.startsWith('C')||o.startsWith('D')) style = 'background:var(--warn-soft);border-color:var(--warn);color:var(--warn);font-weight:600;';
+      else if(o.startsWith('E')) style = 'background:var(--muted-chip-soft);border-color:var(--muted-chip);color:var(--muted-chip);font-weight:600;';
+    }
+    return '<div class="chip'+(selected?' sel':'')+'" style="'+style+'" role="button" tabindex="0" onclick="selectExclusive(\''+item.key+'\','+JSON.stringify(o).replace(/"/g,'&quot;')+')">'+(selected?ICONS.tick:'')+esc(o)+'</div>';
+  }).join('');
+  const comment = item.commentKey ? '<textarea rows="1" style="margin-top:8px;" oninput="onTextInput(this,\''+item.commentKey+'\')" placeholder="Observations (facultatif)">'+esc(state[item.commentKey]||'')+'</textarea>' : '';
+  return '<div class="item-row"><div class="item-label">'+esc(item.label)+'</div><div class="chipwrap">'+chips+'</div>'+comment+'</div>';
+}
+
+function renderStepBody(step){
+  if(step.kind === 'fields') return step.fields.map(renderField).join('');
+  if(step.kind === 'grid') return renderGridBody(step, step.options, step.exclusive, step.items, step.commentKey, null);
+  if(step.kind === 'mixed'){
+    const fieldsHtml = step.fields.map(renderField).join('');
+    const gridHtml = renderGridBody(step, step.grid.options, step.grid.exclusive, step.grid.items, step.commentKey, step.grid.title);
+    return fieldsHtml + '<div style="margin-top:18px;padding-top:16px;border-top:1px solid var(--line);">' + gridHtml + '</div>';
+  }
+  if(step.kind === 'scale'){
+    const rows = step.items.map(renderScaleRow).join('');
+    const cap = '<div class="scale-caption"><span>1 · Insuffisant</span><span>5 · Exemplaire</span></div>';
+    const comment = renderField({key:step.commentKey, label:'Commentaires', type:'textarea'});
+    return rows + cap + '<div style="margin-top:14px;">'+comment+'</div>';
+  }
+  if(step.kind === 'scale-single'){
+    const val = state[step.key];
+    const pills = [1,2,3,4,5].map(n => '<div class="scale-pill'+(val===n?' sel':'')+'" role="button" tabindex="0" onclick="selectScale(\''+step.key+'\','+n+')">'+n+'</div>').join('');
+    const cap = '<div class="scale-caption"><span>1 · Insuffisant</span><span>5 · Exemplaire</span></div>';
+    const comment = renderField({key:step.commentKey, label:'Commentaires', type:'textarea'});
+    return '<div class="item-label" style="font-size:15px;font-weight:600;">'+esc(step.label)+'</div><div class="scale-row">'+pills+'</div>'+cap+'<div style="margin-top:16px;">'+comment+'</div>';
+  }
+  if(step.kind === 'info-scale'){
+    const groups = step.groups.map(g => '<div class="info-block"><h4>'+esc(g.title)+'</h4><ul>'+g.items.map(i=>'<li>'+esc(i)+'</li>').join('')+'</ul></div>').join('');
+    const val = state[step.scaleKey];
+    const pills = [1,2,3,4,5].map(n => '<div class="scale-pill'+(val===n?' sel':'')+'" role="button" tabindex="0" onclick="selectScale(\''+step.scaleKey+'\','+n+')">'+n+'</div>').join('');
+    const cap = '<div class="scale-caption"><span>1 · Insuffisant</span><span>5 · Exemplaire</span></div>';
+    return '<div class="info-card">'+groups+'</div><div class="item-label" style="font-size:15px;font-weight:600;">'+esc(step.scaleLabel)+'</div><div class="scale-row">'+pills+'</div>'+cap;
+  }
+  if(step.kind === 'rated-list'){
+    return step.items.map(item => renderRatedItem(item, step.options)).join('');
+  }
+  if(step.kind === 'mixed-rated'){
+    const rated = step.rated.items.map(item => renderRatedItem(item, step.rated.options)).join('');
+    const fields = step.fields.map(renderField).join('');
+    return rated + '<div style="margin-top:18px;padding-top:16px;border-top:1px solid var(--line);">' + fields + '</div>';
+  }
+  if(step.kind === 'review') return renderReviewBody();
+  return '';
+}
+
+function renderReviewBody(){
+  const missing = requiredMissing();
+  const stats = computeStats();
+  const epiGaps = computeEpiGaps();
+  let html = '';
+
+  if(missing.length){
+    html += '<div class="alert warn"><strong>Informations manquantes</strong><ul>'
+      + missing.map(m => '<li>'+esc(m.label)+' — <button class="link" onclick="jumpToStep('+m.stepIndex+')">compléter</button></li>').join('')
+      + '</ul></div>';
+  }
+
+  if(stats.good+stats.bad+stats.neutral > 0){
+    html += '<div class="summary-grid">'
+      + '<div class="summary-tile ok"><div class="num mono">'+stats.good+'</div><div class="lbl">Conforme</div></div>'
+      + '<div class="summary-tile warn"><div class="num mono">'+stats.bad+'</div><div class="lbl">À signaler</div></div>'
+      + '<div class="summary-tile so"><div class="num mono">'+stats.neutral+'</div><div class="lbl">Sans objet</div></div>'
+      + '</div>';
+    if(stats.rate !== null) html += '<div class="alert info">Taux de conformité (hors sans-objet) : <strong>'+stats.rate+'%</strong></div>';
+  }
+
+  if(stats.badItems.length){
+    html += '<h4 style="font-family:\'Barlow Condensed\',sans-serif;font-size:14px;text-transform:uppercase;letter-spacing:.03em;color:var(--warn);margin:16px 0 4px;">Points à signaler</h4>';
+    html += '<ul class="nc-list">' + stats.badItems.map(n => '<li><span><span class="sec">'+esc(n.section)+'</span>'+esc(n.label)+'</span><button class="link" onclick="jumpToStep('+n.stepIndex+')">voir</button></li>').join('') + '</ul>';
+  }
+  if(epiGaps.length){
+    html += '<div class="alert warn" style="margin-top:16px;"><strong>EPI requis mais non porté</strong><ul>' + epiGaps.map(g=>'<li>'+esc(g)+'</li>').join('') + '</ul></div>';
+  }
+  if(!missing.length && stats.good+stats.bad+stats.neutral === 0 && !stats.badItems.length){
+    html += '<div class="alert info">Vérifiez les informations ci-dessous puis envoyez.</div>';
+  }
+
+  const idLabel = entryLabel(currentSteps(), state);
+  html += '<div style="margin-top:18px;padding-top:16px;border-top:1px solid var(--line);font-size:13px;color:var(--ink-dim);">'
+    + (idLabel ? '<strong>'+esc(idLabel)+'</strong>' : 'Prêt à envoyer')
+    + '</div>';
+
+  return html;
+}
+
+/* ============================================================
+   SCREENS
+   ============================================================ */
+function totalPendingCount(){
+  let n = 0;
+  FORMS.forEach(f => { n += loadHistory(f.id).filter(a => a._status==='pending').length; });
+  return n;
+}
+
+function renderAppBar(){
+  if(!appState.formId){
+    const online = navigator.onLine;
+    return '<header class="appbar">'
+      + '<div class="appbar-row"><h1 class="appbar-title display">Terrain ARTEIC</h1></div>'
+      + '<div class="appbar-sub"><span class="sync-dot '+(online?'on':'')+'"></span>'+(online?'Connecté':'Hors connexion')+'</div>'
+      + '</header>';
+  }
+  const form = currentForm();
+  if(appState.tab === 'form'){
+    const steps = currentSteps();
+    const step = steps[appState.stepIndex];
+    const pct = Math.round(((appState.stepIndex+1) / steps.length) * 100);
+    return '<header class="appbar">'
+      + '<div class="appbar-row"><h1 class="appbar-title display">'+esc(form.name)+'</h1>'
+      + '<button class="btn btn-ghost btn-sm" onclick="goTab(\'list\')">Fermer</button></div>'
+      + '<div class="appbar-sub">'+step.eyebrow+' sur '+steps.length+' · '+esc(step.title)+'</div>'
+      + '<div class="progress-track"><div class="progress-fill" style="width:'+pct+'%"></div></div>'
+      + '</header>';
+  }
+  if(appState.tab === 'detail'){
+    return '<header class="appbar">'
+      + '<button class="form-header-back" onclick="closeDetail()">'+ICONS.back+' '+esc(form.name)+'</button>'
+      + '<div class="appbar-row"><h1 class="appbar-title display">Détail</h1></div></header>';
+  }
+  const online = navigator.onLine;
+  return '<header class="appbar">'
+    + '<button class="form-header-back" onclick="goHome()">'+ICONS.back+' Formulaires</button>'
+    + '<div class="appbar-row"><h1 class="appbar-title display">'+esc(form.name)+'</h1><span class="appbar-rev">'+form.emoji+'</span></div>'
+    + '<div class="appbar-sub"><span class="sync-dot '+(online?'on':'')+'"></span>'+(online?'Connecté':'Hors connexion')+'</div>'
+    + '</header>';
+}
+
+function renderTabBar(){
+  if(!appState.formId){
+    return '<nav class="tabbar"><button class="tab active">'+ICONS.home+'<span>Formulaires</span></button></nav>';
+  }
+  const listActive = appState.tab === 'list' || appState.tab === 'detail';
+  const formActive = appState.tab === 'form';
+  const draftBadge = hasAnyAnswer() && !formActive ? '<span class="dot"></span>' : '';
+  return '<nav class="tabbar">'
+    + '<button class="tab'+(listActive?' active':'')+'" onclick="goTab(\'list\')">'+ICONS.list+'<span>Historique</span></button>'
+    + '<button class="tab'+(formActive?' active':'')+' tab-badge" onclick="onTapNewEntry()">'+ICONS.plus+draftBadge+'<span>Nouveau</span></button>'
+    + '</nav>';
+}
+function onTapNewEntry(){ if(appState.tab === 'form') return; goTab('form'); }
+
+function renderHomeScreen(){
+  let html = '<h2 class="home-title">Formulaires</h2>';
+  html += '<div class="home-sub">Sélectionnez un formulaire — les réponses sont envoyées directement dans le Google Form correspondant.</div>';
+  const pending = totalPendingCount();
+  if(pending){
+    html += '<div class="conn-banner off">'+pending+' saisie'+(pending>1?'s':'')+' en attente d’envoi au total.</div>';
+  }
+  html += FORMS.map(f => {
+    const hist = loadHistory(f.id);
+    const pend = hist.filter(a=>a._status==='pending').length;
+    const draft = loadDraft(f.id);
+    const hasDraft = Object.keys(draft).some(k => draft[k] !== undefined && draft[k] !== '' && !(Array.isArray(draft[k]) && !draft[k].length));
+    let meta = '';
+    if(pend) meta += '<span class="badge pending">'+pend+' en attente</span>';
+    else if(hist.length) meta += '<span class="badge ok">'+hist.length+'</span>';
+    if(hasDraft) meta += '<span class="badge note">brouillon</span>';
+    return '<div class="form-tile" onclick="selectForm(\''+f.id+'\')">'
+      + '<div class="form-tile-emoji">'+f.emoji+'</div>'
+      + '<div class="form-tile-text"><div class="form-tile-name">'+esc(f.name)+'</div><div class="form-tile-desc">'+esc(f.desc)+'</div></div>'
+      + '<div class="form-tile-meta">'+meta+'<span class="form-tile-chevron">'+ICONS.chevron+'</span></div>'
+      + '</div>';
+  }).join('');
+  return html;
+}
+
+function renderFormScreen(){
+  const steps = currentSteps();
+  const step = steps[appState.stepIndex];
+  const isFirst = appState.stepIndex === 0;
+  const isLast = appState.stepIndex === steps.length - 1;
+  const missing = isLast ? requiredMissing() : [];
+
+  const body = '<div class="card">'
+    + '<div class="step-eyebrow">'+step.eyebrow+'</div>'
+    + '<h2 class="step-title">'+esc(step.title)+'</h2>'
+    + (step.help ? '<div class="step-help">'+esc(step.help)+'</div>' : '')
+    + '<div style="margin-top:16px;">' + renderStepBody(step) + '</div>'
+    + '</div>';
+
+  let nav = '<div class="stepnav">';
+  nav += isFirst ? '<button class="btn btn-ghost" style="flex:0 0 46px;" disabled>'+ICONS.back+'</button>'
+                 : '<button class="btn btn-ghost" style="flex:0 0 46px;" onclick="goStep(-1)">'+ICONS.back+'</button>';
+  if(isLast) nav += '<button class="btn btn-primary btn-block" '+(missing.length?'disabled':'')+' onclick="submitEntry()">Envoyer</button>';
+  else nav += '<button class="btn btn-primary btn-block" onclick="goStep(1)">Suivant</button>';
+  nav += '</div>';
+
+  return body + nav;
+}
+
+function statusBadge(a){
+  if(a._status === 'sent') return '<span class="badge ok">Envoyé</span>';
+  if(a._status === 'sending') return '<span class="badge pending">Envoi…</span>';
+  return '<span class="badge pending">En attente</span>';
+}
+function computeStatsForRecord(steps, data){
+  let good=0, bad=0;
+  steps.forEach(step => {
+    let items = null;
+    if(step.kind === 'grid' && step.exclusive) items = step.items;
+    else if(step.kind === 'mixed' && step.grid.exclusive) items = step.grid.items;
+    else if(step.kind === 'rated-list') items = step.items;
+    else if(step.kind === 'mixed-rated') items = step.rated.items;
+    if(!items) return;
+    items.forEach(item => { const v = data[item.key]; if(v===undefined) return; if(BAD_VALUES.has(v)) bad++; else good++; });
+  });
+  return {good, bad};
+}
+function renderEntryCard(form, a){
+  const stats = computeStatsForRecord(form.steps, a);
+  const badBadge = stats.bad > 0 ? '<span class="badge warn">'+stats.bad+' à signaler</span>' : (stats.good ? '<span class="badge ok">OK</span>' : '');
+  const label = entryLabel(form.steps, a) || fmtDateTime(a.submittedAt);
+  return '<div class="audit-card" onclick="openDetail(\''+a._id+'\')">'
+    + '<div class="audit-top"><div><div class="audit-chantier">'+esc(label)+'</div></div>'
+    + '<div class="badges">'+statusBadge(a)+badBadge+'</div></div>'
+    + '<div class="audit-meta"><span>'+fmtDate((a.date_audit||a.date_rex||a.fait_le||a.formalise_le||'').toString())+'</span></div>'
+    + '</div>';
+}
+
+function renderListScreen(){
+  const form = currentForm();
+  const list = loadHistory(form.id);
+  const pendingCount = list.filter(a => a._status === 'pending').length;
+  let html = '<h2 class="screen-title">'+esc(form.name)+'</h2>';
+  html += '<div class="screen-desc">'+list.length+' saisie'+(list.length>1?'s':'')+' sur cet appareil</div>';
+
+  html += '<div class="conn-banner ' + (navigator.onLine ? 'on' : 'off') + '">'
+    + (navigator.onLine ? 'Chaque envoi va directement dans le Google Form « '+esc(form.name)+' » (onglet Réponses).' : 'Hors connexion : les envois seront mis en attente puis renvoyés automatiquement.')
+    + '</div>';
+  if(pendingCount) html += '<div class="conn-banner off">'+pendingCount+' en attente d’envoi.</div>';
+
+  html += '<button class="fab-new" onclick="startNewEntry()">'+ICONS.plus+' Nouvelle saisie</button>';
+  if(hasAnyAnswer()){
+    html += '<div class="banner local" style="cursor:pointer;" onclick="goTab(\'form\')">Brouillon en cours ('+countAnsweredSteps()+'/'+(form.steps.length-1)+' étapes) — appuyer pour reprendre.</div>';
+  }
+  if(list.length === 0) html += '<div class="empty">'+ICONS.empty+'<p>Aucune saisie enregistrée pour l’instant.</p></div>';
+  else html += list.map(a => renderEntryCard(form, a)).join('');
+  return html;
+}
+
+function renderDetailScreen(){
+  const form = currentForm();
+  const list = loadHistory(form.id);
+  const data = list.find(a => a._id === appState.detailId);
+  if(!data) return '<div class="empty">'+ICONS.empty+'<p>Introuvable.</p></div>';
+
+  let html = '<h2 class="screen-title">'+esc(entryLabel(form.steps, data) || form.name)+'</h2>';
+  html += '<div class="screen-desc">'+esc(form.name)+'</div>';
+  html += '<div style="margin-bottom:12px;">'+statusBadge(data)+'</div>';
+  if(data._status === 'pending') html += '<button class="btn btn-primary btn-block" style="margin-bottom:10px;" onclick="resendOne(\''+data._id+'\')">Renvoyer maintenant</button>';
+  html += '<button class="btn btn-ghost btn-block" style="margin-bottom:6px;" onclick=\'exportRecord(currentDetailData())\'>Copier le détail</button>';
+  html += '<div style="font-size:11.5px;color:var(--ink-faint);margin-bottom:6px;">Saisi le '+fmtDateTime(data.submittedAt)+'</div>';
+
+  form.steps.forEach(step => {
+    if(step.kind === 'review') return;
+    let sectionHtml = '';
+    if(step.kind === 'fields'){
+      step.fields.forEach(f => {
+        if(f.type==='note') return;
+        const v = data[f.key];
+        const display = Array.isArray(v) ? v.join(', ') : v;
+        if(display) sectionHtml += '<div class="kv-row"><span class="k">'+esc(f.label)+'</span><span class="v">'+esc(display)+'</span></div>';
+      });
+    } else if(step.kind === 'grid' || step.kind === 'mixed'){
+      const items = step.kind==='grid' ? step.items : step.grid.items;
+      const options = step.kind==='grid' ? step.options : step.grid.options;
+      const exclusive = step.kind==='grid' ? step.exclusive : step.grid.exclusive;
+      if(step.kind==='mixed'){ step.fields.forEach(f => { const v=data[f.key]; if(Array.isArray(v)&&v.length) sectionHtml += '<div class="kv-row"><span class="k">'+esc(f.label)+'</span><span class="v">'+esc(v.join(', '))+'</span></div>'; }); }
+      items.forEach(item => {
+        let statusHtml;
+        if(exclusive){
+          const v = data[item.key]; if(!v) return;
+          const bad = BAD_VALUES.has(v), neutral = NEUTRAL_VALUES.has(v);
+          const bg = bad?'warn-soft':neutral?'muted-chip-soft':'ok-soft', fg = bad?'warn':neutral?'muted-chip':'ok';
+          statusHtml = '<span class="chip-status" style="background:var(--'+bg+');color:var(--'+fg+');">'+esc(v)+'</span>';
+        } else {
+          const sel = options.filter(o=>data[item.key+'__'+o]); if(!sel.length) return;
+          statusHtml = '<span class="chip-status" style="background:var(--accent-soft);color:var(--accent-soft-ink);">'+esc(sel.join(' + '))+'</span>';
+        }
+        sectionHtml += '<div class="kv-row"><span class="k">'+esc(item.label)+'</span><span class="v">'+statusHtml+'</span></div>';
+      });
+      if(data[step.commentKey]) sectionHtml += '<div class="detail-comment">'+esc(data[step.commentKey])+'</div>';
+    } else if(step.kind === 'scale'){
+      step.items.forEach(item => { if(data[item.key]) sectionHtml += '<div class="kv-row"><span class="k">'+esc(item.label)+'</span><span class="v mono">'+data[item.key]+'/5</span></div>'; });
+      if(data[step.commentKey]) sectionHtml += '<div class="detail-comment">'+esc(data[step.commentKey])+'</div>';
+    } else if(step.kind === 'scale-single'){
+      if(data[step.key]) sectionHtml += '<div class="kv-row"><span class="k">'+esc(step.label)+'</span><span class="v mono">'+data[step.key]+'/5</span></div>';
+      if(data[step.commentKey]) sectionHtml += '<div class="detail-comment">'+esc(data[step.commentKey])+'</div>';
+    } else if(step.kind === 'info-scale'){
+      if(data[step.scaleKey]) sectionHtml += '<div class="kv-row"><span class="k">'+esc(step.scaleLabel)+'</span><span class="v mono">'+data[step.scaleKey]+'/5</span></div>';
+    } else if(step.kind === 'rated-list' || step.kind === 'mixed-rated'){
+      const items = step.kind==='rated-list' ? step.items : step.rated.items;
+      items.forEach(item => {
+        const v = data[item.key]; if(!v) return;
+        const bad = BAD_VALUES.has(v), neutral = NEUTRAL_VALUES.has(v);
+        const bg = bad?'warn-soft':neutral?'muted-chip-soft':'ok-soft', fg = bad?'warn':neutral?'muted-chip':'ok';
+        sectionHtml += '<div class="kv-row"><span class="k">'+esc(item.label)+'</span><span class="v"><span class="chip-status" style="background:var(--'+bg+');color:var(--'+fg+');">'+esc(v)+'</span></span></div>';
+        if(data[item.commentKey]) sectionHtml += '<div class="detail-comment">'+esc(data[item.commentKey])+'</div>';
+      });
+      if(step.kind==='mixed-rated') step.fields.forEach(f => { if(data[f.key]) sectionHtml += '<div style="margin-top:8px;"><div class="k" style="font-size:12.5px;color:var(--ink-dim);margin-bottom:4px;">'+esc(f.label)+'</div><div class="detail-comment" style="margin-top:0;">'+esc(data[f.key])+'</div></div>'; });
+    }
+    if(sectionHtml) html += '<div class="card"><h3 class="step-title" style="font-size:18px;">'+esc(step.title)+'</h3>'+sectionHtml+'</div>';
+  });
+
+  return html;
+}
+function currentDetailData(){ return loadHistory(appState.formId).find(a => a._id === appState.detailId); }
+
+function render(){
+  const app = document.getElementById('app');
+  let view = '';
+  if(!appState.formId) view = renderHomeScreen();
+  else if(appState.tab === 'form') view = renderFormScreen();
+  else if(appState.tab === 'detail') view = renderDetailScreen();
+  else view = renderListScreen();
+
+  app.innerHTML = renderAppBar()
+    + '<main id="view">' + view + '</main>'
+    + renderTabBar()
+    + (appState.toast ? '<div class="toast">'+esc(appState.toast)+'</div>' : '')
+    + renderExportModal();
+
+  document.querySelectorAll('#view textarea').forEach(autoGrow);
+}
+
+render();
+if(navigator.onLine) retryPendingAll();
+</script>
+</body>
+</html>
