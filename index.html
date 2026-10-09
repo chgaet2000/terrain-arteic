@@ -122,7 +122,7 @@
   .appbar{
     position:sticky; top:0; z-index:20;
     background:var(--bg);
-    padding:calc(env(safe-area-inset-top,0px) + 14px) 18px 12px;
+    padding:calc(var(--safe-area-inset-top, env(safe-area-inset-top,0px)) + 14px) 18px 12px;
     border-bottom:1px solid var(--line);
   }
   .appbar-row{ display:flex; align-items:baseline; justify-content:space-between; gap:10px; }
@@ -260,7 +260,7 @@
   /* ---------- Footer nav (form) ---------- */
   .stepnav{
     position:fixed; left:50%; transform:translateX(-50%);
-    bottom:64px; width:100%; max-width:560px;
+    bottom:calc(64px + var(--safe-area-inset-bottom, env(safe-area-inset-bottom,0px))); width:100%; max-width:560px;
     background:var(--bg);
     border-top:1px solid var(--line);
     padding:10px 18px; display:flex; gap:10px; z-index:15;
@@ -271,7 +271,7 @@
   .tabbar{
     position:fixed; left:50%; transform:translateX(-50%); bottom:0; width:100%; max-width:560px;
     display:flex; background:var(--surface); border-top:1px solid var(--line);
-    padding-bottom:env(safe-area-inset-bottom,0px);
+    padding-bottom:var(--safe-area-inset-bottom, env(safe-area-inset-bottom,0px));
     z-index:16;
   }
   .tab{
@@ -1588,7 +1588,8 @@ function render(){
 
 /* ---------- Installation (PWA) ---------- */
 let deferredInstall = null;
-function isStandalone(){ return window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true; }
+const IS_NATIVE = !!window.Capacitor || location.protocol === 'capacitor:' || (location.hostname === 'localhost' && location.protocol === 'https:');
+function isStandalone(){ return IS_NATIVE || window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true; }
 window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); deferredInstall = e; render(); });
 window.addEventListener('appinstalled', () => { deferredInstall = null; render(); });
 async function installApp(){
@@ -1608,7 +1609,7 @@ function renderInstallBanner(){
   }
   return '';
 }
-if('serviceWorker' in navigator && location.protocol.startsWith('http')){
+if(!IS_NATIVE && 'serviceWorker' in navigator && location.protocol.startsWith('http')){
   window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
 }
 
