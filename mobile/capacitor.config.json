@@ -1,0 +1,9 @@
+{
+  "appId": "fr.arteic.terrain",
+  "appName": "Terrain ARTEIC",
+  "webDir": "www",
+  "backgroundColor": "#f3f1ea",
+  "plugins": {
+    "SystemBars": { "insetsHandling": "css" }
+  }
+}
