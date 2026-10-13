@@ -1,6 +1,6 @@
-// Renseignez ici l'URL du projet Supabase et la clé "anon public" (Project Settings > API).
-// La clé anon est publique par conception : la sécurité repose sur les règles RLS de schema.sql.
+// URL de la Web App Google Apps Script (Déployer > Gérer les déploiements), terminée par /exec.
+// Elle reçoit les formulaires (Google Sheets + PDF par e-mail) et alimente le tableau de bord,
+// dont l'accès est protégé par un code vérifié côté Google (apps-script/Code.gs).
 window.ARTEIC_CONFIG = {
-  SUPABASE_URL: 'https://onhrdgctrcxrpoioiosb.supabase.co',
-  SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9uaHJkZ2N0cmN4cnBvaW9pb3NiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk4MjE1MDYsImV4cCI6MjEwNTM5NzUwNn0.OLxTo_Zp6qOX2AcBmdA8JR2x7HKUKyTWKM8mCpVriWs'
+  APPS_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbym04KJx0p0wPXUWAv7SZqqnNANYf8KdbQhZfUXzEj_4Q65bSXdfIZZEVC5h5Q6w9wL/exec'
 };
