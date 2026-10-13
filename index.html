@@ -35,6 +35,9 @@
     --muted-chip:#8a8272;
     --muted-chip-soft:#e7e2d3;
     --star:#d99a1e;
+    --so:#2563a8;
+    --so-soft:#dce8f7;
+    --on-solid:#ffffff;
     --shadow: 0 1px 2px rgba(28,26,21,0.06), 0 6px 16px -8px rgba(28,26,21,0.18);
     --radius: 14px;
     --radius-sm: 9px;
@@ -60,6 +63,9 @@
       --muted-chip:#8b9490;
       --muted-chip-soft:#262d2a;
     --star:#f0b54a;
+    --so:#7fb0ea;
+    --so-soft:#1d2d44;
+    --on-solid:#10161a;
       --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 20px -10px rgba(0,0,0,0.5);
     }
   }
@@ -83,6 +89,9 @@
     --muted-chip:#8b9490;
     --muted-chip-soft:#262d2a;
     --star:#f0b54a;
+    --so:#7fb0ea;
+    --so-soft:#1d2d44;
+    --on-solid:#10161a;
     --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 20px -10px rgba(0,0,0,0.5);
   }
 
@@ -201,9 +210,10 @@
   }
   .pill.wide{ flex:1 1 auto; }
   .pill:active{ transform:scale(0.97); }
-  .pill.sel-c{ background:var(--ok-soft); border-color:var(--ok); color:var(--ok); }
-  .pill.sel-nc{ background:var(--warn-soft); border-color:var(--warn); color:var(--warn); }
-  .pill.sel-so{ background:var(--muted-chip-soft); border-color:var(--muted-chip); color:var(--muted-chip); }
+  /* Sélection en couleur pleine pour être bien visible sur le terrain */
+  .pill.sel-c{ background:var(--ok); border-color:var(--ok); color:var(--on-solid); }
+  .pill.sel-nc{ background:var(--warn); border-color:var(--warn); color:var(--on-solid); }
+  .pill.sel-so{ background:var(--so); border-color:var(--so); color:var(--on-solid); }
   .pill.sel-accent{ background:var(--accent-soft); border-color:var(--accent); color:var(--accent-soft-ink); }
 
   .scale-row{ display:flex; gap:7px; }
@@ -248,7 +258,7 @@
   .summary-tile .lbl{ font-size:11px; color:var(--ink-dim); text-transform:uppercase; letter-spacing:.04em; margin-top:2px; }
   .summary-tile.ok .num{ color:var(--ok); }
   .summary-tile.warn .num{ color:var(--warn); }
-  .summary-tile.so .num{ color:var(--muted-chip); }
+  .summary-tile.so .num{ color:var(--so); }
 
   .alert{ border-radius:var(--radius-sm); padding:12px 14px; font-size:13.5px; line-height:1.5; margin-bottom:14px; }
   .alert.warn{ background:var(--warn-soft); color:var(--warn); }
@@ -1479,7 +1489,7 @@ function renderDetailScreen(){
         if(exclusive){
           const v = data[item.key]; if(!v) return;
           const bad = BAD_VALUES.has(v), neutral = NEUTRAL_VALUES.has(v);
-          const bg = bad?'warn-soft':neutral?'muted-chip-soft':'ok-soft', fg = bad?'warn':neutral?'muted-chip':'ok';
+          const bg = bad?'warn-soft':neutral?'so-soft':'ok-soft', fg = bad?'warn':neutral?'so':'ok';
           statusHtml = '<span class="chip-status" style="background:var(--'+bg+');color:var(--'+fg+');">'+esc(v)+'</span>';
         } else {
           const sel = options.filter(o=>data[item.key+'__'+o]); if(!sel.length) return;
@@ -1501,7 +1511,7 @@ function renderDetailScreen(){
       items.forEach(item => {
         const v = data[item.key]; if(!v) return;
         const bad = BAD_VALUES.has(v), neutral = NEUTRAL_VALUES.has(v);
-        const bg = bad?'warn-soft':neutral?'muted-chip-soft':'ok-soft', fg = bad?'warn':neutral?'muted-chip':'ok';
+        const bg = bad?'warn-soft':neutral?'so-soft':'ok-soft', fg = bad?'warn':neutral?'so':'ok';
         sectionHtml += '<div class="kv-row"><span class="k">'+esc(item.label)+'</span><span class="v"><span class="chip-status" style="background:var(--'+bg+');color:var(--'+fg+');">'+esc(v)+'</span></span></div>';
         if(data[item.commentKey]) sectionHtml += '<div class="detail-comment">'+esc(data[item.commentKey])+'</div>';
       });
