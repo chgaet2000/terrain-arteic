@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Terrain">
 <meta name="theme-color" content="#1f4e63">
-<title>Terrain ARTEIC</title>
+<title>ARTEIC SSE terrain</title>
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/png" href="icon-192.png">
@@ -34,6 +34,7 @@
     --warn-soft:#f6dfd3;
     --muted-chip:#8a8272;
     --muted-chip-soft:#e7e2d3;
+    --star:#d99a1e;
     --shadow: 0 1px 2px rgba(28,26,21,0.06), 0 6px 16px -8px rgba(28,26,21,0.18);
     --radius: 14px;
     --radius-sm: 9px;
@@ -58,6 +59,7 @@
       --warn-soft:#3a2419;
       --muted-chip:#8b9490;
       --muted-chip-soft:#262d2a;
+    --star:#f0b54a;
       --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 20px -10px rgba(0,0,0,0.5);
     }
   }
@@ -80,6 +82,7 @@
     --warn-soft:#3a2419;
     --muted-chip:#8b9490;
     --muted-chip-soft:#262d2a;
+    --star:#f0b54a;
     --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 20px -10px rgba(0,0,0,0.5);
   }
 
@@ -213,6 +216,24 @@
   }
   .scale-pill.sel{ background:var(--accent); border-color:var(--accent); color:var(--accent-ink); }
   .scale-caption{ display:flex; justify-content:space-between; font-size:11px; color:var(--ink-faint); margin-top:5px; }
+
+  /* ---------- Notation par étoiles (libellé et étoiles sur une ligne) ---------- */
+  .star-item{ display:flex; align-items:center; justify-content:space-between; gap:10px; }
+  .star-item .item-label{ margin-bottom:0; flex:1; min-width:0; }
+  .stars{ display:flex; flex:none; }
+  .star{
+    border:none; background:none; cursor:pointer; padding:4px 1px; line-height:1;
+    font-size:27px; color:var(--line-strong); -webkit-tap-highlight-color:transparent;
+    transition:color .12s ease, transform .12s ease;
+  }
+  .star.on{ color:var(--star); }
+  .star:active{ transform:scale(0.9); }
+  @media (hover:hover){
+    .stars:hover .star{ color:var(--star); }
+    .stars .star:hover ~ .star{ color:var(--line-strong); }
+  }
+
+  .field-heading{ font-size:17px; color:var(--accent); margin:26px 0 4px; padding-top:16px; border-top:1px solid var(--line); }
 
   .info-block{ margin-top:14px; }
   .info-block h4{ font-family:'Barlow Condensed',sans-serif; font-size:15px; text-transform:uppercase; letter-spacing:.03em; color:var(--accent); margin:0 0 6px; }
@@ -426,8 +447,9 @@
 
 /* ============================================================
    Application 100% autonome, sans dépendance à Claude.
-   Chaque saisie est envoyée à la base Supabase (table "submissions",
-   insertion seule pour le public) puis consultée dans dashboard.html.
+   Chaque saisie est envoyée au script Google Apps Script (config.js)
+   qui l'enregistre dans Google Sheets et envoie le PDF au responsable ;
+   elle est consultée dans dashboard.html.
    ============================================================ */
 
 const ICONS = {
@@ -441,41 +463,36 @@ const ICONS = {
 };
 
 const CNC = ['C', 'NC', 'SO'];
-const EPI_OPTS = ['Requis', 'Porté', 'SO'];
 const OUINON = ['Oui', 'Non'];
 const AE = ['A : Très bien','B : Bien','C : Insuffisant','D : Inacceptable','E : Sans objet'];
-const BON_MAUVAIS = ['Bon', 'Mauvais'];
+const BON_MAUVAIS_SO = ['Bon', 'Mauvais', 'Sans-Objet'];
 
 /* ============================================================
-   FORM 1 — Audit terrain (Révision 0 - 11/10/2023)
+   FORM 1 — Audit terrain
    ============================================================ */
 const STEPS_AUDIT_TERRAIN = [
   { id:'identification', kind:'fields', title:'Identification', eyebrow:'Étape 1',
     help:'Informations générales de l’audit.',
     fields:[
-      {key:'auditeurs', label:'Auditeur(s)', type:'text', entry:'entry.2062281755', required:true},
-      {key:'date_audit', label:'Audit réalisé le', type:'date', entry:'entry.1561106773', required:true},
-      {key:'chantier', label:'Chantier', type:'text', entry:'entry.1484586964', required:true},
-      {key:'client', label:'Client', type:'text', entry:'entry.1613376251', required:true},
-      {key:'responsable', label:'Nom du responsable sur site', type:'text', entry:'entry.1075830780'},
-      {key:'nature_travaux', label:'Nature des travaux', type:'text', entry:'entry.52980699'},
-      {key:'personnes_auditees', label:'Noms des personnes auditées', type:'textarea', entry:'entry.1218339787'},
+      {key:'auditeurs', label:'Auditeur(s)', type:'text', required:true},
+      {key:'date_audit', label:'Audit réalisé le', type:'date', required:true},
+      {key:'chantier_client', label:'Chantier / Client', type:'text', required:true},
+      {key:'responsable', label:'Nom du responsable sur site', type:'text'},
+      {key:'personnes_auditees', label:'Noms des personnes auditées', type:'textarea'},
     ]
   },
   { id:'habilitations', kind:'grid', title:'Habilitations / Autorisations', eyebrow:'Étape 2', options:CNC, exclusive:true,
     items:[
-      {key:'hab_accueil', label:'Accueil chantier', entry:'entry.552196749'},
-      {key:'hab_habilitations', label:'Habilitations requises', entry:'entry.609468447'},
-      {key:'hab_autorisation', label:'Autorisation d’accès / divers', entry:'entry.356013743'},
-      {key:'hab_permis', label:'Permis sécurité', entry:'entry.1441001693'},
-      {key:'hab_plan_prevention', label:'Plan de prévention / PPSPS', entry:'entry.568940231'},
-    ], commentKey:'hab_commentaires', commentEntry:'entry.832303164' },
+      {key:'hab_accueil', label:'Habilitations / Autorisations / Accueil chantier'},
+      {key:'hab_plan_prevention', label:'Plan de prévention / PPSPS'},
+      {key:'hab_mode_operatoire', label:'Mode opératoire'},
+    ], commentKey:'hab_commentaires' },
   { id:'proprete', kind:'grid', title:'Ordre / Propreté / Rangement', eyebrow:'Étape 3', options:CNC, exclusive:true,
     items:[
-      {key:'proprete_poste', label:'Poste de travail (hygiène / rangement)', entry:'entry.635237235'},
-      {key:'proprete_locaux', label:'Locaux (hygiène / rangement)', entry:'entry.384495916'},
-    ], commentKey:'proprete_commentaires', commentEntry:'entry.1976610980' },
-  { id:'epi', kind:'grid', title:'Équipements de protection individuelle', eyebrow:'Étape 4', options:EPI_OPTS, exclusive:false,
+      {key:'proprete_poste', label:'Poste de travail (hygiène / rangement)'},
+      {key:'proprete_locaux', label:'Locaux (hygiène / rangement)'},
+    ], commentKey:'proprete_commentaires' },
+  { id:'epi', kind:'grid', title:'Équipements de protection individuelle', eyebrow:'Étape 4', options:CNC, exclusive:true,
     items:[
       {key:'epi_vetements', label:'Vêtements', entry:'entry.1036520703'},
       {key:'epi_casque', label:'Casque', entry:'entry.1119187865'},
@@ -487,13 +504,12 @@ const STEPS_AUDIT_TERRAIN = [
       {key:'epi_ari', label:'ARI', entry:'entry.1478216758'},
       {key:'epi_autres', label:'Autres', entry:'entry.1586687450'},
     ], commentKey:'epi_commentaires', commentEntry:'entry.720530625' },
-  { id:'culture', kind:'scale', title:'Évaluation de la culture SSE', eyebrow:'Étape 5',
+  { id:'culture', kind:'scale', stars:true, title:'Évaluation de la culture SSE', eyebrow:'Étape 5',
+    help:'Votre note : sélectionnez entre 1 et 5 étoiles.',
     items:[
-      {key:'culture_rigoureux', label:'Être rigoureux (je respecte les consignes SSE)', entry:'entry.1556604918'},
-      {key:'culture_prudent', label:'Être prudent (analyse de l’intervention, je comprends les consignes)', entry:'entry.735908075'},
-      {key:'culture_responsable', label:'Agir responsable (vigilance partagée)', entry:'entry.78169319'},
-      {key:'culture_force_proposition', label:'Être force de proposition (remontées d’information)', entry:'entry.1512637737'},
-    ], commentKey:'culture_commentaires', commentEntry:'entry.537310304' },
+      {key:'culture_consignes', label:'Comprend et respecte les consignes SSE'},
+      {key:'culture_remontees', label:'Participe aux remontées d’informations'},
+    ], commentKey:'culture_commentaires' },
   { id:'equipement', kind:'grid', title:'Équipement / Outillage — conformité du matériel', eyebrow:'Étape 6', options:CNC, exclusive:true,
     items:[
       {key:'equipement_bonne_utilisation', label:'Bonne utilisation', entry:'entry.372964545'},
@@ -502,21 +518,20 @@ const STEPS_AUDIT_TERRAIN = [
     ], commentKey:'equipement_commentaires', commentEntry:'entry.568884221' },
   { id:'chimiques', kind:'grid', title:'Produits chimiques', eyebrow:'Étape 7', options:CNC, exclusive:true,
     items:[
-      {key:'chimiques_fds', label:'Présence FDS', entry:'entry.155235866'},
-      {key:'chimiques_etiquetage', label:'Étiquetage', entry:'entry.34837214'},
-      {key:'chimiques_utilisation', label:'Bonne utilisation', entry:'entry.1424465696'},
-      {key:'chimiques_stockage', label:'Respect du stockage', entry:'entry.270390557'},
-    ], commentKey:'chimiques_commentaires', commentEntry:'entry.1451193365' },
+      {key:'chimiques_fds_etiquetage', label:'Présence FDS – étiquetage des produits'},
+      {key:'chimiques_stockage', label:'Respect du stockage des produits'},
+    ], commentKey:'chimiques_commentaires' },
   { id:'environnement', kind:'grid', title:'Environnement', eyebrow:'Étape 8', options:CNC, exclusive:true,
     items:[
-      {key:'environnement_respect', label:'Respect de l’environnement', entry:'entry.2025732185'},
-      {key:'environnement_dechets', label:'Déchets', entry:'entry.1104773194'},
-      {key:'environnement_dechets_dangereux', label:'Évacuation des déchets dangereux', entry:'entry.261093208'},
-    ], commentKey:'environnement_commentaires', commentEntry:'entry.1015215775' },
-  { id:'actions', kind:'fields', title:'Actions', eyebrow:'Étape 9',
+      {key:'environnement_respect', label:'Respect de l’environnement (absence de déversement de produits)'},
+      {key:'environnement_dechets', label:'Déchets (tri, évacuation)'},
+    ], commentKey:'environnement_commentaires' },
+  { id:'actions', kind:'fields', title:'Synthèse et actions', eyebrow:'Étape 9',
     fields:[
-      {key:'actions_a_reporter', label:'Actions à reporter dans le plan d’action', type:'radio-options', options:OUINON, entry:'entry.307765739'},
-      {key:'actions_plan', label:'Détail des actions à reporter', type:'textarea', entry:'entry.438463495'},
+      {key:'points_positifs', label:'Points positifs de l’audit', type:'textarea'},
+      {key:'points_ameliorer', label:'Points à améliorer', type:'textarea'},
+      {key:'actions_a_reporter', label:'Actions à reporter dans le plan d’actions', type:'radio-options', options:OUINON},
+      {key:'actions_plan', label:'Détail des actions à reporter', type:'textarea'},
     ]
   },
   { id:'review', kind:'review', title:'Récapitulatif', eyebrow:'Étape 10' },
@@ -561,25 +576,23 @@ const STEPS_VEHICULE = [
       {key:'designation', label:'Désignation du véhicule', type:'text', entry:'entry.1613376251', required:true},
       {key:'kilometrage', label:'Kilométrage', type:'text', entry:'entry.1209435211', required:true},
       {key:'auditeurs', label:'Auditeur(s)', type:'text', entry:'entry.2062281755', required:true},
-      {key:'responsable', label:'Nom du responsable du véhicule', type:'text', entry:'entry.1075830780'},
     ]
   },
-  { id:'exterieur', kind:'grid', title:'Extérieur du véhicule', eyebrow:'Étape 2', options:BON_MAUVAIS, exclusive:true,
+  { id:'exterieur', kind:'grid', title:'Extérieur du véhicule', eyebrow:'Étape 2', options:BON_MAUVAIS_SO, exclusive:true,
     items:[
       {key:'ext_general', label:'État général extérieur', entry:'entry.552196749'},
       {key:'ext_pneus', label:'Pneus', entry:'entry.609468447'},
-      {key:'ext_vignette', label:'Vignette', entry:'entry.356013743'},
+      {key:'ext_vignette', label:'Vignette (Crit’Air) si concerné', entry:'entry.356013743'},
       {key:'ext_essuie_glaces', label:'Essuie-glaces', entry:'entry.1487095291'},
       {key:'ext_niveaux', label:'Niveaux', entry:'entry.1001521193'},
       {key:'ext_feux', label:'Feux de signalisation', entry:'entry.138485986'},
       {key:'ext_retroviseurs', label:'Rétroviseurs', entry:'entry.1187513486'},
       {key:'ext_proprete', label:'Propreté', entry:'entry.661414475'},
     ], commentKey:'ext_commentaires', commentEntry:'entry.832303164' },
-  { id:'interieur', kind:'grid', title:'Intérieur du véhicule', eyebrow:'Étape 3', options:BON_MAUVAIS, exclusive:true,
+  { id:'interieur', kind:'grid', title:'Intérieur du véhicule', eyebrow:'Étape 3', options:BON_MAUVAIS_SO, exclusive:true,
     items:[
       {key:'int_general', label:'État général intérieur', entry:'entry.635237235'},
-      {key:'int_rangement', label:'Rangement', entry:'entry.384495916'},
-      {key:'int_proprete', label:'Propreté', entry:'entry.54724233'},
+      {key:'int_rangement_proprete', label:'Rangement et propreté'},
       {key:'int_gilet_triangle', label:'Gilet fluo — triangle de signalisation', entry:'entry.660846254'},
       {key:'int_assurance', label:'Assurance — carte grise — manuel', entry:'entry.1852275475'},
       {key:'int_trousse', label:'Trousse de secours', entry:'entry.1926646934'},
@@ -595,19 +608,17 @@ const STEPS_VEHICULE = [
 ];
 
 /* ============================================================
-   FORM 4 — Mise au travail / Pré job briefing (Révision A - 27/10/2025)
+   FORM 4 — Briefing de chantier (mise au travail / pré job briefing)
+   Une seule page, sans récapitulatif.
    ============================================================ */
 const STEPS_PREJOB = [
-  { id:'identification', kind:'fields', title:'Identification', eyebrow:'Étape 1',
+  { id:'briefing', kind:'fields', title:'Briefing de chantier', eyebrow:'Page unique',
     fields:[
-      {key:'redacteur', label:'Rédacteur', type:'text', entry:'entry.2062281755', required:true},
-      {key:'formalise_le', label:'Formalisé le', type:'date', entry:'entry.1561106773', required:true},
-      {key:'chantier', label:'Chantier', type:'text', entry:'entry.1484586964', required:true},
-      {key:'client', label:'Client', type:'text', entry:'entry.1613376251', required:true},
-    ]
-  },
-  { id:'briefing', kind:'fields', title:'Vérifications avant intervention', eyebrow:'Étape 2',
-    fields:[
+      {key:'redacteur', label:'Rédacteur', type:'text', required:true},
+      {key:'formalise_le', label:'Formalisé le', type:'date', required:true},
+      {key:'chantier', label:'Chantier', type:'text', required:true},
+      {key:'client', label:'Client', type:'text', required:true},
+      {type:'heading', label:'Vérifications avant la prise de poste'},
       {key:'modes_operatoires', label:'Les modes opératoires et/ou analyses de risques sont disponibles sur le lieu d’intervention ?', type:'radio-options', checkNo:true, options:OUINON, entry:'entry.552196749', required:true},
       {key:'risques_identifies', label:'Les risques de l’intervention et les parades associées ont tous été identifiés ?', type:'radio-options', checkNo:true, options:OUINON, entry:'entry.635237235', required:true},
       {key:'conditions_travail', label:'Les conditions de travail (risques, moyens techniques et humains,...) sont conformes à ce qui a été prescrit ?', type:'radio-options', checkNo:true, options:OUINON, entry:'entry.1036520703', required:true},
@@ -617,7 +628,6 @@ const STEPS_PREJOB = [
       {key:'observations', label:'Observations / Actions d’amélioration', type:'textarea', entry:'entry.485787779'},
     ]
   },
-  { id:'review', kind:'review', title:'Récapitulatif', eyebrow:'Étape 3' },
 ];
 
 /* ============================================================
@@ -628,7 +638,7 @@ const FORMS = [
     steps: STEPS_AUDIT_TERRAIN },
   { id:'remontee', name:'Situation dangereuse', desc:'Signaler une situation dangereuse', emoji:'⚠️',
     steps: STEPS_REMONTEE },
-  { id:'pre-job', name:'Pré job briefing', desc:'Mise au travail', emoji:'🧰',
+  { id:'pre-job', name:'Briefing de chantier', desc:'Vérifications avant la prise de poste', emoji:'🧰',
     steps: STEPS_PREJOB },
   { id:'audit-vehicule', name:'Audit véhicule', desc:'Contrôle du véhicule', emoji:'🚐',
     steps: STEPS_VEHICULE },
@@ -694,7 +704,6 @@ function selectForm(id){
   appState.stepIndex = loadStepIndex(id);
   appState.detailId = null;
   state = loadDraft(id);
-  if(!state.date_audit && !state.date_rex && !state.fait_le && !state.formalise_le){ /* seed today where relevant */ }
   seedDefaults();
   window.scrollTo(0,0); render();
 }
@@ -707,7 +716,7 @@ function seedDefaults(){
   if(dateField && !state[dateField]) state[dateField] = todayISO();
 }
 function goTab(tab){
-  appState.tab = tab; appState.detailId = null;
+  appState.tab = tab; appState.detailId = null; appState.showMissing = false;
   if(tab === 'form' && appState.stepIndex == null) appState.stepIndex = 0;
   window.scrollTo(0,0); render();
 }
@@ -742,7 +751,8 @@ function showToast(msg){ appState.toast = msg; render(); setTimeout(() => { appS
    VALIDATION & STATS  (generic across form shapes)
    ============================================================ */
 const BAD_VALUES = new Set(['NC','Mauvais','C : Insuffisant','D : Inacceptable']);
-const NEUTRAL_VALUES = new Set(['SO','E : Sans objet']);
+const NEUTRAL_VALUES = new Set(['SO','Sans-Objet','E : Sans objet']);
+const isDisplayOnly = f => f.type === 'note' || f.type === 'heading';
 
 function requiredMissing(){
   const missing = [];
@@ -790,25 +800,13 @@ function computeStats(){
   const rate = (good+bad) > 0 ? Math.round((good/(good+bad))*100) : null;
   return { good, bad, neutral, rate, badItems };
 }
-function computeEpiGaps(){
-  if(appState.formId !== 'audit-terrain') return [];
-  const step = currentSteps().find(s => s.id === 'epi');
-  if(!step) return [];
-  const gaps = [];
-  step.items.forEach(item => {
-    const requis = !!state[item.key+'__Requis'];
-    const porte = !!state[item.key+'__Porté'];
-    if(requis && !porte) gaps.push(item.label);
-  });
-  return gaps;
-}
 function countAnsweredSteps(){
   let done = 0;
   currentSteps().forEach(step => { if(step.kind!=='review' && stepHasAnyAnswer(step)) done++; });
   return done;
 }
 function stepHasAnyAnswer(step){
-  if(step.kind === 'fields') return step.fields.some(f => f.type==='note' ? false : (Array.isArray(state[f.key]) ? state[f.key].length : (f.type==='scale-inline' ? state[f.key]!==undefined : String(state[f.key]||'').trim())));
+  if(step.kind === 'fields') return step.fields.some(f => isDisplayOnly(f) ? false : (Array.isArray(state[f.key]) ? state[f.key].length : (f.type==='scale-inline' ? state[f.key]!==undefined : String(state[f.key]||'').trim())));
   if(step.kind === 'grid') return step.items.some(item => step.exclusive ? state[item.key]!==undefined : step.options.some(o=>state[item.key+'__'+o]));
   if(step.kind === 'mixed'){
     const fieldsAnswered = step.fields.some(f => Array.isArray(state[f.key]) ? state[f.key].length : String(state[f.key]||'').trim());
@@ -824,7 +822,9 @@ function stepHasAnyAnswer(step){
 }
 
 /* ============================================================
-   SUBMISSION — envoi vers la base Supabase (table "submissions")
+   SUBMISSION — envoi vers Google Sheets (script Apps Script)
+   Chaque saisie part avec tous les intitulés, y compris les
+   questions non renseignées (rapport PDF complet).
    ============================================================ */
 function rowStatus(v){ return BAD_VALUES.has(v) ? 'nc' : NEUTRAL_VALUES.has(v) ? 'so' : 'ok'; }
 function hasValue(v){ return Array.isArray(v) ? v.length > 0 : (v !== undefined && v !== null && String(v).trim() !== ''); }
@@ -837,97 +837,53 @@ function buildPayload(form, data){
 
   form.steps.forEach(step => {
     const rows = [];
-    let comment = '';
-
-    const addField = f => {
-      if(f.type === 'note' || f.type === 'photos') return;
-      const v = data[f.key];
-      if(!hasValue(v)) return;
-      const row = { label: f.label, value: f.type === 'date' ? fmtDate(v) : disp(v) };
-      if(f.checkNo){ row.status = v === 'Non' ? 'nc' : v === 'Oui' ? 'ok' : 'so'; count(row.status); }
-      if(f.type === 'scale-inline') row.num = Number(v);
-      if(f.type === 'textarea') row.long = true;
-      rows.push(row);
-    };
-    const addExclusive = item => {
-      const v = data[item.key];
-      if(v === undefined) return null;
-      const s = rowStatus(v);
-      count(s);
-      const row = { label: item.label, value: v, status: s };
-      rows.push(row);
-      return row;
-    };
-    const addGridItems = (items, options, exclusive) => {
-      items.forEach(item => {
-        if(exclusive){ addExclusive(item); return; }
-        const sel = options.filter(o => data[item.key + '__' + o]);
-        if(!sel.length) return;
-        const row = { label: item.label, value: sel.join(' + ') };
-        if(sel.includes('Requis')){ row.status = sel.includes('Porté') ? 'ok' : 'nc'; count(row.status); }
-        rows.push(row);
-      });
-    };
-    const addScale = (label, key) => {
-      if(data[key] === undefined) return;
-      rows.push({ label, value: data[key] + '/5', num: Number(data[key]) });
-    };
-    const addRated = item => {
-      const row = addExclusive(item);
-      if(row && data[item.commentKey]) row.comment = data[item.commentKey];
-    };
+    const sec = { title: step.title, rows };
 
     if(step.kind === 'fields'){
-      step.fields.forEach(addField);
+      step.fields.forEach(f => {
+        if(isDisplayOnly(f) || f.type === 'photos') return;
+        const v = data[f.key];
+        const row = { label: f.label, value: '' };
+        if(f.type === 'textarea') row.long = true;
+        if(!hasValue(v)){ row.empty = true; rows.push(row); return; }
+        row.value = f.type === 'date' ? fmtDate(v) : disp(v);
+        if(f.checkNo){ row.status = v === 'Non' ? 'nc' : v === 'Oui' ? 'ok' : 'so'; count(row.status); }
+        rows.push(row);
+      });
     } else if(step.kind === 'grid'){
-      addGridItems(step.items, step.options, step.exclusive);
-      comment = data[step.commentKey] || '';
-    } else if(step.kind === 'mixed'){
-      step.fields.forEach(addField);
-      addGridItems(step.grid.items, step.grid.options, step.grid.exclusive);
-      comment = data[step.commentKey] || '';
+      step.items.forEach(item => {
+        const v = data[item.key];
+        if(v === undefined){ rows.push({ label: item.label, value: '', empty: true }); return; }
+        const s = rowStatus(v);
+        count(s);
+        rows.push({ label: item.label, value: v, status: s });
+      });
+      sec.comment = data[step.commentKey] || '';
     } else if(step.kind === 'scale'){
-      step.items.forEach(item => addScale(item.label, item.key));
-      comment = data[step.commentKey] || '';
-    } else if(step.kind === 'scale-single'){
-      addScale(step.label, step.key);
-      comment = data[step.commentKey] || '';
-    } else if(step.kind === 'info-scale'){
-      addScale(step.scaleLabel, step.scaleKey);
-    } else if(step.kind === 'rated-list'){
-      step.items.forEach(addRated);
-    } else if(step.kind === 'mixed-rated'){
-      step.rated.items.forEach(addRated);
-      step.fields.forEach(addField);
+      step.items.forEach(item => {
+        const v = data[item.key];
+        if(v === undefined){ rows.push({ label: item.label, value: '', empty: true }); return; }
+        rows.push({ label: item.label, value: v + '/5', num: Number(v), stars: !!step.stars });
+      });
+      sec.comment = data[step.commentKey] || '';
     }
 
-    if(rows.length || comment){
-      const sec = { title: step.title, rows };
-      if(comment) sec.comment = comment;
-      sections.push(sec);
-    }
+    if(rows.length) sections.push(sec);
   });
 
   const pick = keys => { for(const k of keys){ if(hasValue(data[k])) return String(data[k]); } return null; };
-  const meta = {};
-  if(data.gravite !== undefined) meta.gravite = Number(data.gravite);
-  if(data.probabilite !== undefined) meta.probabilite = Number(data.probabilite);
-
   return {
     id: data._id,
     form_id: form.id,
     form_name: form.name,
     audit_date: pick(['date_audit','fait_le','formalise_le']),
-    chantier: pick(['chantier','lieu','designation','immatriculation']),
+    chantier: pick(['chantier_client','chantier','lieu','immatriculation']),
     client: pick(['client']),
-    auteur: pick(['auditeurs','redacteur','nom_prenom','animateur']),
+    auteur: pick(['auditeurs','redacteur','nom_prenom']),
     good, bad, neutral,
     rate: (good + bad) > 0 ? Math.round(good / (good + bad) * 1000) / 10 : null,
     created_at: data.submittedAt,
-    payload: {
-      v: 1, meta, sections,
-      photos: (data.photos || []).filter(p => p.path).map(p => ({ path: p.path })),
-    },
+    payload: { v: 2, sections },
   };
 }
 
@@ -982,43 +938,23 @@ function renderPhotosField(f){
     + '</div></div>';
 }
 
-async function uploadPhotos(record){
-  const cfg = window.ARTEIC_CONFIG || {};
-  for(const p of (record.photos || [])){
-    if(p.path) continue;
-    const path = record._id + '/' + p.id + '.jpg';
-    const blob = await (await fetch(p.data)).blob();
-    const res = await fetch(cfg.SUPABASE_URL + '/storage/v1/object/photos/' + path, {
-      method: 'POST',
-      headers: { 'apikey': cfg.SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + cfg.SUPABASE_ANON_KEY, 'Content-Type': 'image/jpeg' },
-      body: blob,
-    });
-    if(!res.ok){
-      const j = await res.json().catch(() => ({}));
-      if(String(j.statusCode) !== '409' && j.error !== 'Duplicate') throw new Error('photo HTTP ' + res.status);
-    }
-    p.path = path;
-  }
-}
-
 async function postRecord(form, record){
-  const cfg = window.ARTEIC_CONFIG || {};
-  if(!cfg.SUPABASE_URL || !cfg.SUPABASE_ANON_KEY) throw new Error('config manquante');
-  await uploadPhotos(record);
-  const headers = { 'apikey': cfg.SUPABASE_ANON_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' };
-  if(cfg.SUPABASE_ANON_KEY.startsWith('eyJ')) headers['Authorization'] = 'Bearer ' + cfg.SUPABASE_ANON_KEY;
-  const res = await fetch(cfg.SUPABASE_URL + '/rest/v1/submissions', {
-    method: 'POST',
-    headers,
-    body: JSON.stringify(buildPayload(form, record)),
-  });
-  if(!res.ok && res.status !== 409) throw new Error('HTTP ' + res.status);
-  (record.photos || []).forEach(p => { delete p.data; });
+  const url = (window.ARTEIC_CONFIG || {}).APPS_SCRIPT_URL;
+  if(!url) throw new Error('config manquante');
+  const body = buildPayload(form, record);
+  body.photos = (record.photos || []).filter(p => p.data).map(p => ({ id: p.id, data: p.data }));
+  // Corps en text/plain : pas de pré-requête CORS, accepté par Apps Script.
+  const res = await fetch(url, { method: 'POST', body: JSON.stringify({ action: 'submit', record: body }) });
+  if(!res.ok) throw new Error('HTTP ' + res.status);
+  const out = await res.json();
+  if(!out.ok) throw new Error(out.error || 'refusé');
+  (record.photos || []).forEach(p => { delete p.data; p.sent = true; });
 }
 
 async function submitEntry(){
   const missing = requiredMissing();
-  if(missing.length){ render(); return; }
+  if(missing.length){ appState.showMissing = true; render(); window.scrollTo(0,0); return; }
+  appState.showMissing = false;
 
   const form = currentForm();
   const record = Object.assign({}, state, { _id: uid(), submittedAt: new Date().toISOString(), _status: 'sending' });
@@ -1035,7 +971,7 @@ async function submitEntry(){
   try{
     await postRecord(form, record);
     record._status = 'sent';
-    showToast('Envoyé ✓');
+    showToast('Envoyé ✓ — PDF transmis au responsable');
   }catch(e){
     record._status = 'pending';
     showToast('Envoi impossible — sera renvoyé automatiquement');
@@ -1076,7 +1012,7 @@ async function resendOne(id){
 /* ============================================================
    TEXT EXPORT
    ============================================================ */
-const LABEL_KEY_PRIORITY = ['chantier','lieu','designation','immatriculation','nom_prenom','animateur','redacteur'];
+const LABEL_KEY_PRIORITY = ['chantier_client','chantier','lieu','designation','immatriculation','nom_prenom','animateur','redacteur'];
 function entryLabel(steps, data){
   for(const key of LABEL_KEY_PRIORITY){
     if(data[key]) return data[key];
@@ -1098,7 +1034,7 @@ function recordToText(form, data){
     let block = [];
     if(step.kind === 'fields'){
       step.fields.forEach(f => {
-        if(f.type==='note') return;
+        if(isDisplayOnly(f)) return;
         if(f.type==='photos'){ if(Array.isArray(data[f.key]) && data[f.key].length) block.push(f.label+' : '+data[f.key].length+' photo(s)'); return; }
         const v = data[f.key];
         if(Array.isArray(v) && v.length) block.push(f.label+' : '+v.join(', '));
@@ -1199,6 +1135,9 @@ function renderField(f){
   if(f.type === 'note'){
     return '<div class="field" style="color:var(--ink-dim);font-size:13.5px;font-style:italic;">'+esc(f.label)+'</div>';
   }
+  if(f.type === 'heading'){
+    return '<h3 class="field-heading">'+esc(f.label)+'</h3>';
+  }
   if(f.type === 'photos') return renderPhotosField(f);
   if(f.type === 'checkbox-options' || f.type === 'radio-options'){
     return '<div class="field"><label>'+esc(f.label)+req+'</label>'+renderChipSelect(f)+'</div>';
@@ -1243,6 +1182,11 @@ function renderScaleRow(item){
   const pills = [1,2,3,4,5].map(n => '<div class="scale-pill'+(val===n?' sel':'')+'" role="button" tabindex="0" onclick="selectScale(\''+item.key+'\','+n+')">'+n+'</div>').join('');
   return '<div class="item-row"><div class="item-label">'+esc(item.label)+'</div><div class="scale-row">'+pills+'</div></div>';
 }
+function renderStarRow(item){
+  const val = state[item.key] || 0;
+  const stars = [1,2,3,4,5].map(n => '<button type="button" class="star'+(n<=val?' on':'')+'" aria-label="'+n+' étoile'+(n>1?'s':'')+'" onclick="selectScale(\''+item.key+'\','+n+')">★</button>').join('');
+  return '<div class="item-row star-item"><div class="item-label">'+esc(item.label)+'</div><div class="stars" role="group">'+stars+'</div></div>';
+}
 function ratedPillClass(code, selected){
   if(!selected) return 'chip';
   if(code.startsWith('A')||code.startsWith('B')) return 'chip sel';
@@ -1273,8 +1217,8 @@ function renderStepBody(step){
     return fieldsHtml + '<div style="margin-top:18px;padding-top:16px;border-top:1px solid var(--line);">' + gridHtml + '</div>';
   }
   if(step.kind === 'scale'){
-    const rows = step.items.map(renderScaleRow).join('');
-    const cap = '<div class="scale-caption"><span>1 · Insuffisant</span><span>5 · Exemplaire</span></div>';
+    const rows = step.items.map(step.stars ? renderStarRow : renderScaleRow).join('');
+    const cap = step.stars ? '' : '<div class="scale-caption"><span>1 · Insuffisant</span><span>5 · Exemplaire</span></div>';
     const comment = renderField({key:step.commentKey, label:'Commentaires', type:'textarea'});
     return rows + cap + '<div style="margin-top:14px;">'+comment+'</div>';
   }
@@ -1307,7 +1251,6 @@ function renderStepBody(step){
 function renderReviewBody(){
   const missing = requiredMissing();
   const stats = computeStats();
-  const epiGaps = computeEpiGaps();
   let html = '';
 
   if(missing.length){
@@ -1328,9 +1271,6 @@ function renderReviewBody(){
   if(stats.badItems.length){
     html += '<h4 style="font-family:\'Barlow Condensed\',sans-serif;font-size:14px;text-transform:uppercase;letter-spacing:.03em;color:var(--warn);margin:16px 0 4px;">Points à signaler</h4>';
     html += '<ul class="nc-list">' + stats.badItems.map(n => '<li><span><span class="sec">'+esc(n.section)+'</span>'+esc(n.label)+'</span><button class="link" onclick="jumpToStep('+n.stepIndex+')">voir</button></li>').join('') + '</ul>';
-  }
-  if(epiGaps.length){
-    html += '<div class="alert warn" style="margin-top:16px;"><strong>EPI requis mais non porté</strong><ul>' + epiGaps.map(g=>'<li>'+esc(g)+'</li>').join('') + '</ul></div>';
   }
   if(!missing.length && stats.good+stats.bad+stats.neutral === 0 && !stats.badItems.length){
     html += '<div class="alert info">Vérifiez les informations ci-dessous puis envoyez.</div>';
@@ -1357,7 +1297,7 @@ function renderAppBar(){
   if(!appState.formId){
     const online = navigator.onLine;
     return '<header class="appbar">'
-      + '<div class="appbar-row"><h1 class="appbar-title display">Terrain ARTEIC</h1></div>'
+      + '<div class="appbar-row"><h1 class="appbar-title display">ARTEIC SSE terrain</h1></div>'
       + '<div class="appbar-sub"><span class="sync-dot '+(online?'on':'')+'"></span>'+(online?'Connecté':'Hors connexion')+'</div>'
       + '</header>';
   }
@@ -1369,7 +1309,7 @@ function renderAppBar(){
     return '<header class="appbar">'
       + '<div class="appbar-row"><h1 class="appbar-title display">'+esc(form.name)+'</h1>'
       + '<button class="btn btn-ghost btn-sm" onclick="goTab(\'list\')">Fermer</button></div>'
-      + '<div class="appbar-sub">'+step.eyebrow+' sur '+steps.length+' · '+esc(step.title)+'</div>'
+      + '<div class="appbar-sub">'+(steps.length > 1 ? step.eyebrow+' sur '+steps.length+' · '+esc(step.title) : 'Tous les champs sur une page')+'</div>'
       + '<div class="progress-track"><div class="progress-fill" style="width:'+pct+'%"></div></div>'
       + '</header>';
   }
@@ -1402,7 +1342,7 @@ function onTapNewEntry(){ if(appState.tab === 'form') return; goTab('form'); }
 
 function renderHomeScreen(){
   let html = '<h2 class="home-title">Formulaires</h2>';
-  html += '<div class="home-sub">Sélectionnez un formulaire — les réponses sont envoyées directement au tableau de bord ARTEIC.</div>';
+  html += '<div class="home-sub">Sélectionnez un formulaire.</div>';
   html += renderInstallBanner();
   const pending = totalPendingCount();
   if(pending){
@@ -1432,8 +1372,13 @@ function renderFormScreen(){
   const isFirst = appState.stepIndex === 0;
   const isLast = appState.stepIndex === steps.length - 1;
   const missing = isLast ? requiredMissing() : [];
+  // Formulaire sans récapitulatif : les champs obligatoires manquants sont signalés ici.
+  const missingAlert = (isLast && step.kind !== 'review' && missing.length && appState.showMissing)
+    ? '<div class="alert warn" style="margin-bottom:14px;"><strong>Champs obligatoires à remplir</strong><ul>'
+      + missing.map(m => '<li>'+esc(m.label)+'</li>').join('') + '</ul></div>'
+    : '';
 
-  const body = '<div class="card">'
+  const body = missingAlert + '<div class="card">'
     + '<div class="step-eyebrow">'+step.eyebrow+'</div>'
     + '<h2 class="step-title">'+esc(step.title)+'</h2>'
     + (step.help ? '<div class="step-help">'+esc(step.help)+'</div>' : '')
@@ -1443,7 +1388,7 @@ function renderFormScreen(){
   let nav = '<div class="stepnav">';
   nav += isFirst ? '<button class="btn btn-ghost" style="flex:0 0 46px;" disabled>'+ICONS.back+'</button>'
                  : '<button class="btn btn-ghost" style="flex:0 0 46px;" onclick="goStep(-1)">'+ICONS.back+'</button>';
-  if(isLast) nav += '<button class="btn btn-primary btn-block" '+(missing.length?'disabled':'')+' onclick="submitEntry()">Envoyer</button>';
+  if(isLast) nav += '<button class="btn btn-primary btn-block" '+(missing.length && step.kind === 'review'?'disabled':'')+' onclick="submitEntry()">Envoyer</button>';
   else nav += '<button class="btn btn-primary btn-block" onclick="goStep(1)">Suivant</button>';
   nav += '</div>';
 
@@ -1518,7 +1463,7 @@ function renderDetailScreen(){
     let sectionHtml = '';
     if(step.kind === 'fields'){
       step.fields.forEach(f => {
-        if(f.type==='note') return;
+        if(isDisplayOnly(f)) return;
         if(f.type==='photos'){ if(Array.isArray(data[f.key]) && data[f.key].length) sectionHtml += '<div class="kv-row"><span class="k">'+esc(f.label)+'</span><span class="v">'+data[f.key].length+' photo(s)</span></div>'; return; }
         const v = data[f.key];
         const display = Array.isArray(v) ? v.join(', ') : v;
