@@ -7,8 +7,7 @@
 <title>Tableau de bord ARTEIC</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap">
 <script src="config.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 <style>
   :root{
     --bg:#f3f1ea; --surface:#ffffff; --surface-2:#eae6d8; --ink:#1c1a15; --ink-dim:#6b6558; --ink-faint:#948d7c;
@@ -113,6 +112,7 @@
   .kv{ display:flex; justify-content:space-between; gap:16px; padding:7px 0; border-bottom:1px solid var(--line); font-size:14px; }
   .kv .v{ text-align:right; font-weight:500; } .kv .v.long{ text-align:left; white-space:pre-wrap; }
   .kv.long{ flex-direction:column; gap:4px; } .kv .k{ color:var(--ink-dim); }
+  .vide{ color:var(--ink-faint); font-style:italic; font-weight:400; }
   .cmt{ margin:4px 0 6px; padding:8px 10px; background:var(--surface-2); border-radius:var(--radius-sm); font-size:13.5px; color:var(--ink-dim); white-space:pre-wrap; }
   .sheet-foot{ margin-top:24px; font-size:12px; color:var(--ink-faint); border-top:1px solid var(--line); padding-top:10px; }
 
@@ -131,26 +131,24 @@
 
 <div id="setup" class="hidden" style="padding:40px 20px;text-align:center;">
   <h1>Configuration manquante</h1>
-  <p>Renseignez <b>SUPABASE_URL</b> et <b>SUPABASE_ANON_KEY</b> dans <code>config.js</code>.</p>
+  <p>Renseignez <b>APPS_SCRIPT_URL</b> dans <code>config.js</code>.</p>
 </div>
 
 <div id="login" class="hidden">
   <form class="login-card" id="loginForm">
     <h1>Tableau de bord ARTEIC</h1>
-    <p>Accès réservé. Connectez-vous avec votre compte.</p>
-    <label for="email">Email</label>
-    <input id="email" type="email" autocomplete="username" required>
-    <label for="password">Mot de passe</label>
-    <input id="password" type="password" autocomplete="current-password" required>
+    <p>Accès réservé aux responsables. Saisissez le code d’accès.</p>
+    <label for="code">Code d’accès</label>
+    <input id="code" type="password" autocomplete="current-password" required>
     <div id="loginErr" class="msg-err hidden"></div>
-    <button class="btn btn-block" id="loginBtn" type="submit">Se connecter</button>
+    <button class="btn btn-block" id="loginBtn" type="submit">Ouvrir le tableau de bord</button>
   </form>
 </div>
 
 <div id="app" class="hidden">
   <header class="top"><div class="wrap">
     <h1>Tableau de bord ARTEIC</h1>
-    <div class="who"><span id="whoEmail"></span><span class="role" id="whoRole"></span><button class="btn btn-ghost" id="logoutBtn">Déconnexion</button></div>
+    <div class="who"><button class="btn btn-ghost" id="refreshBtn">Actualiser</button><button class="btn btn-ghost" id="logoutBtn">Déconnexion</button></div>
   </div></header>
 
   <main class="wrap">
@@ -191,7 +189,7 @@ const $ = id => document.getElementById(id);
 const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const MONTHS = ['janv.','févr.','mars','avr.','mai','juin','juil.','août','sept.','oct.','nov.','déc.'];
 
-let sb = null, ROLE = null, ALL = [], VIEW = [], sortKey = 'date', sortDir = 'desc', shown = 50, charts = {};
+let CODE = null, ALL = [], VIEW = [], sortKey = 'date', sortDir = 'desc', shown = 50, charts = {};
 const PAGE = 50;
 
 function show(id, on){ $(id).classList.toggle('hidden', !on); }
@@ -203,48 +201,48 @@ function monthLabel(k){ const [y,m] = k.split('-'); return MONTHS[parseInt(m,10)
 function pct(good, bad){ return (good+bad) > 0 ? Math.round(good/(good+bad)*1000)/10 : null; }
 function rateBadge(rate){ if(rate == null) return '<span class="badge so">—</span>'; return '<span class="badge '+(rate>=90?'ok':rate>=70?'acc':'warn')+'">'+String(rate).replace('.',',')+' %</span>'; }
 
-/* ---------- Auth ---------- */
+/* ---------- Accès (code vérifié par le script Google) ---------- */
+async function api(body){
+  // Corps en text/plain : pas de pré-requête CORS, accepté par Apps Script.
+  const res = await fetch(CFG.APPS_SCRIPT_URL, { method:'POST', body: JSON.stringify(Object.assign({ key: CODE }, body)) });
+  if(!res.ok) throw new Error('HTTP ' + res.status);
+  return res.json();
+}
+function loginError(msg){ $('loginErr').textContent = msg; $('loginErr').classList.remove('hidden'); }
+
 async function boot(){
-  if(!CFG.SUPABASE_URL || !CFG.SUPABASE_ANON_KEY){ show('setup', true); return; }
-  sb = supabase.createClient(CFG.SUPABASE_URL, CFG.SUPABASE_ANON_KEY);
-  const { data } = await sb.auth.getSession();
-  if(data.session) await enter(data.session.user); else show('login', true);
+  if(!CFG.APPS_SCRIPT_URL){ show('setup', true); return; }
+  try{ CODE = sessionStorage.getItem('arteic_dash_code'); }catch(e){}
+  if(CODE && await loadData()) return;
+  show('login', true);
 }
 $('loginForm').addEventListener('submit', async e => {
   e.preventDefault();
   const btn = $('loginBtn'); btn.disabled = true; $('loginErr').classList.add('hidden');
-  const { data, error } = await sb.auth.signInWithPassword({ email: $('email').value.trim(), password: $('password').value });
+  CODE = $('code').value.trim();
+  const ok = await loadData();
   btn.disabled = false;
-  if(error){ $('loginErr').textContent = 'Identifiants incorrects.'; $('loginErr').classList.remove('hidden'); return; }
-  await enter(data.user);
+  if(ok){ try{ sessionStorage.setItem('arteic_dash_code', CODE); }catch(e){} }
 });
-$('logoutBtn').addEventListener('click', async () => { await sb.auth.signOut(); location.reload(); });
-
-async function enter(user){
-  const { data: me } = await sb.from('allowed_users').select('role').maybeSingle();
-  if(!me){
-    await sb.auth.signOut(); show('app', false); show('login', true);
-    $('loginErr').textContent = 'Ce compte n’est pas autorisé à consulter le tableau de bord.'; $('loginErr').classList.remove('hidden'); return;
-  }
-  ROLE = me.role;
-  $('whoEmail').textContent = user.email; $('whoRole').textContent = ROLE === 'admin' ? 'Administrateur' : 'Client';
-  show('login', false); show('app', true);
-  await loadData();
-}
+$('logoutBtn').addEventListener('click', () => { try{ sessionStorage.removeItem('arteic_dash_code'); }catch(e){} location.reload(); });
+$('refreshBtn').addEventListener('click', () => loadData());
 
 async function loadData(){
-  ALL = [];
-  const size = 1000;
-  for(let from = 0; ; from += size){
-    const { data, error } = await sb.from('submissions').select('*').order('created_at', { ascending:false }).range(from, from + size - 1);
-    if(error){ $('foot').textContent = 'Erreur de chargement : ' + error.message; break; }
-    ALL.push(...data);
-    if(data.length < size) break;
+  let out;
+  try{ out = await api({ action:'list' }); }
+  catch(e){ loginError('Connexion au serveur impossible. Vérifiez votre réseau.'); return false; }
+  if(!out.ok){
+    show('app', false); show('login', true);
+    loginError(out.error === 'code' ? 'Code d’accès incorrect.' : 'Erreur : ' + out.error);
+    return false;
   }
+  show('login', false); show('app', true);
+  ALL = out.rows.sort((a,b) => String(b.created_at).localeCompare(String(a.created_at)));
   const forms = {};
   ALL.forEach(r => forms[r.form_id] = r.form_name);
   $('fForm').innerHTML = '<option value="">Tous</option>' + Object.entries(forms).map(([id,n]) => '<option value="'+esc(id)+'">'+esc(n)+'</option>').join('');
   apply();
+  return true;
 }
 
 /* ---------- Filters ---------- */
@@ -349,13 +347,15 @@ function statusBadge(s, v){
   if(s === 'so') return '<span class="badge so">'+esc(v)+'</span>';
   return esc(v);
 }
-async function loadPhotos(paths){
-  const { data, error } = await sb.storage.from('photos').createSignedUrls(paths, 3600);
+async function loadPhotos(ids){
+  const res = await Promise.all(ids.map(id => api({ action:'photo', id }).catch(() => null)));
   const box = $('reportPhotos'); if(!box) return;
-  const urls = (data || []).filter(d => d.signedUrl).map(d => d.signedUrl);
-  if(error || !urls.length){ box.innerHTML = '<div class="empty-note">Photos indisponibles.</div>'; return; }
-  box.innerHTML = urls.map(u => '<a href="'+esc(u)+'" target="_blank" rel="noopener"><img src="'+esc(u)+'" alt="Photo de la situation"></a>').join('');
+  const urls = res.filter(r => r && r.ok).map(r => r.data);
+  if(!urls.length){ box.innerHTML = '<div class="empty-note">Photos indisponibles.</div>'; return; }
+  box.innerHTML = urls.map(u => '<img src="'+esc(u)+'" alt="Photo de la situation">').join('');
 }
+const VALEURS_FR = { 'C':'Conforme', 'NC':'Non conforme', 'SO':'Sans objet' };
+function stars(n){ return '<span style="color:#d99a1e">'+'★★★★★'.slice(0,n)+'</span><span style="color:var(--line-strong)">'+'★★★★★'.slice(n)+'</span> '+n+'/5'; }
 function openReport(id){
   const r = ALL.find(x => x.id === id); if(!r) return;
   const secs = r.payload?.sections || [];
@@ -365,19 +365,21 @@ function openReport(id){
   let body = '';
   secs.forEach(s => {
     const rows = (s.rows || []).map(row => {
-      if(row.long) return '<div class="kv long"><span class="k">'+esc(row.label)+'</span><span class="v long">'+esc(row.value)+'</span></div>';
-      return '<div class="kv"><span class="k">'+esc(row.label)+'</span><span class="v">'+statusBadge(row.status, row.value)+'</span></div>'
+      const vide = '<span class="vide">Non renseigné</span>';
+      if(row.long) return '<div class="kv long"><span class="k">'+esc(row.label)+'</span><span class="v long">'+(row.empty ? vide : esc(row.value))+'</span></div>';
+      const v = row.empty ? vide : row.stars ? stars(row.num) : statusBadge(row.status, VALEURS_FR[row.value] || row.value);
+      return '<div class="kv"><span class="k">'+esc(row.label)+'</span><span class="v">'+v+'</span></div>'
         + (row.comment ? '<div class="cmt">'+esc(row.comment)+'</div>' : '');
     }).join('');
-    body += '<div class="sec"><h3>'+esc(s.title)+'</h3>'+rows+(s.comment ? '<div class="cmt">'+esc(s.comment)+'</div>' : '')+'</div>';
+    body += '<div class="sec"><h3>'+esc(s.title)+'</h3>'+rows+(s.comment ? '<div class="cmt"><b>Commentaires :</b> '+esc(s.comment)+'</div>' : '')+'</div>';
   });
 
   const m = r.payload?.meta || {};
-  const photoPaths = (r.payload?.photos || []).map(p => p.path).filter(Boolean);
+  const photoPaths = (r.payload?.photos || []).filter(Boolean);
   const nPhotos = photoPaths.length;
   $('reportView').innerHTML =
     '<div class="report"><div class="report-bar"><button class="btn btn-ghost" id="rClose">← Retour</button><div style="display:flex;gap:8px;">'
-    + (ROLE === 'admin' ? '<button class="btn btn-danger" id="rDel">Supprimer</button>' : '')
+    + '<button class="btn btn-danger" id="rDel">Supprimer</button>'
     + '<button class="btn" id="rPrint">Télécharger le PDF</button></div></div>'
     + '<div class="sheet"><div class="brand">ARTEIC — Rapport</div><h1>'+esc(r.form_name)+'</h1>'
     + '<div class="meta">'
@@ -388,7 +390,7 @@ function openReport(id){
       + (m.gravite ? '<div><b>Gravité / probabilité</b>'+esc(m.gravite)+' / '+esc(m.probabilite || '—')+'</div>' : '')
     + '</div>'
     + ((r.good + r.bad + r.neutral) > 0 ? '<div class="summary"><div class="tile ok"><div class="n">'+r.good+'</div><div class="l">Conformes</div></div><div class="tile warn"><div class="n">'+r.bad+'</div><div class="l">Non-conformités</div></div><div class="tile"><div class="n">'+r.neutral+'</div><div class="l">Sans objet</div></div><div class="tile"><div class="n">'+(r.rate == null ? '—' : String(r.rate).replace('.',',')+' %')+'</div><div class="l">Conformité</div></div></div>' : '')
-    + (ncRows.length ? '<div class="todo"><h3>Points à traiter ('+ncRows.length+')</h3><ul>'+ncRows.map(n => '<li><b>'+esc(n.sec)+'</b> — '+esc(n.label)+' : '+esc(n.value)+'</li>').join('')+'</ul></div>' : '')
+    + (ncRows.length ? '<div class="todo"><h3>Points à traiter ('+ncRows.length+')</h3><ul>'+ncRows.map(n => '<li><b>'+esc(n.sec)+'</b> — '+esc(n.label)+' : '+esc(VALEURS_FR[n.value] || n.value)+'</li>').join('')+'</ul></div>' : '')
     + (nPhotos ? '<div class="sec"><h3>Photos ('+nPhotos+')</h3><div class="photos" id="reportPhotos"><div class="empty-note">Chargement des photos…</div></div></div>' : '')
     + body
     + '<div class="sheet-foot">Saisi le '+fmtDateTime(r.created_at)+' · Réf. '+esc(r.id)+'</div></div></div>';
@@ -398,10 +400,9 @@ function openReport(id){
   $('rPrint').addEventListener('click', () => { const t = document.title; document.title = 'Rapport ' + r.form_name + ' ' + (r.chantier || '') + ' ' + rowDate(r); window.print(); document.title = t; });
   const del = $('rDel');
   if(del) del.addEventListener('click', async () => {
-    if(!confirm('Supprimer définitivement cette saisie ?')) return;
-    const { data, error } = await sb.from('submissions').delete().eq('id', id).select();
-    if(error || !data || !data.length){ alert('Suppression impossible.'); return; }
-    if(photoPaths.length) await sb.storage.from('photos').remove(photoPaths);
+    if(!confirm('Supprimer cette saisie du Google Sheets ? (les photos vont dans la corbeille Google Drive)')) return;
+    const out = await api({ action:'delete', form_id: r.form_id, id }).catch(() => null);
+    if(!out || !out.ok){ alert('Suppression impossible.'); return; }
     ALL = ALL.filter(x => x.id !== id); show('reportView', false); apply();
   });
 }
