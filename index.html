@@ -632,10 +632,9 @@ const STEPS_PREJOB = [
       {key:'modes_operatoires', label:'Les modes opératoires et/ou analyses de risques sont disponibles sur le lieu d’intervention ?', type:'radio-options', checkNo:true, options:OUINON, entry:'entry.552196749', required:true},
       {key:'risques_identifies', label:'Les risques de l’intervention et les parades associées ont tous été identifiés ?', type:'radio-options', checkNo:true, options:OUINON, entry:'entry.635237235', required:true},
       {key:'conditions_travail', label:'Les conditions de travail (risques, moyens techniques et humains,...) sont conformes à ce qui a été prescrit ?', type:'radio-options', checkNo:true, options:OUINON, entry:'entry.1036520703', required:true},
-      {key:'points_surveillance', label:'Les points particuliers de surveillance sont connus ?', type:'radio-options', checkNo:true, options:['Oui','Non','Non concerné'], entry:'entry.1509019824', required:true},
+      {key:'equipements_protection', label:'Les équipements de protection collective et/ou individuelle sont disponibles pour le chantier ?', type:'radio-options', checkNo:true, options:OUINON, required:true},
       {key:'roles_responsabilites', label:'Les rôles et responsabilités de chacun sont connus ?', type:'radio-options', checkNo:true, options:OUINON, entry:'entry.1817095001', required:true},
-      {key:'rex_pris_compte', label:'Si un REX a été formalisé sur ce type d’intervention, il a été pris en compte avant de commencer les travaux ?', type:'radio-options', checkNo:true, options:['Oui','Non','Non concerné'], entry:'entry.1628579450', required:true},
-      {key:'observations', label:'Observations / Actions d’amélioration', type:'textarea', entry:'entry.485787779'},
+      {key:'action_avant_poste', label:'Si ces conditions ne sont pas réunies, nécessité de mettre en place une action avant de prendre le poste', type:'textarea'},
     ]
   },
 ];
