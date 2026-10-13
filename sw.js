@@ -1,4 +1,4 @@
-const CACHE = 'arteic-v1';
+const CACHE = 'arteic-v2';
 const SHELL = ['./', './index.html', './config.js', './manifest.webmanifest', './icon-192.png', './icon-512.png', './apple-touch-icon.png'];
 
 self.addEventListener('install', e => {
@@ -17,8 +17,8 @@ self.addEventListener('fetch', e => {
   if(req.method !== 'GET') return;
   const url = new URL(req.url);
 
-  // Jamais de cache pour la base de données ni le tableau de bord
-  if(url.hostname.endsWith('supabase.co') || url.pathname.endsWith('/dashboard.html')) return;
+  // Jamais de cache pour le tableau de bord
+  if(url.pathname.endsWith('/dashboard.html')) return;
 
   // Polices Google : cache au premier chargement
   if(url.hostname === 'fonts.googleapis.com' || url.hostname === 'fonts.gstatic.com'){
